@@ -2,11 +2,9 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Active Directory Migration Lab Cloud Formation Template",
   "Metadata": {
-    "Test Item": {
-      "Description": "This is a test metadata item"
-    },
     "AWS::Cloudformation::Interface": {
-      "ParameterGroups": [{
+      "ParameterGroups": [
+        {
           "Label": {
             "default": "Network Configuration"
           },
