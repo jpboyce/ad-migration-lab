@@ -268,9 +268,9 @@
     "DomainAdminUserforDomain1": {
       "Description": "Name for first Domain Admin account",
       "Type": "String",
-      "MinLength": "3",
+      "MinLength": "5",
       "MaxLength": "25",
-      "AllowedPattern": "[a-zA-Z0-9]+\\..+",
+      "AllowedPattern": "[a-zA-Z0-9]*",
       "Default": "awsdomainadmin",
       "ConstraintDescription": "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
     },
@@ -334,7 +334,7 @@
       "Default": "awsdomainadmin",
       "MinLength": "3",
       "MaxLength": "25",
-      "AllowedPattern": "[a-zA-Z0-9]+\\..+",
+      "AllowedPattern": "[a-zA-Z0-9]*",
       "ConstraintDescription": "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
     },
     "DomainAdminPasswordforDomain2": {
