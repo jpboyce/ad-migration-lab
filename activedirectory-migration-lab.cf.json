@@ -1,1072 +1,1285 @@
 {
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Active Directory Migration Lab Cloud Formation Template",
-  "Metadata": {
-    "AWS::Cloudformation::Interface": {
-      "ParameterGroups": [
-        {
-          "Label": {
-            "default": "Network Configuration"
-          },
-          "Parameters": [
-            "CIDRforActiveDirectoryMigrationLabVPC",
-            "PrivateCIDRforDomain1",
-            "PublicCIDRforDomain1",
-            "PrivateIPforDomain1DC",
-            "PrivateCIDRforDomain2",
-            "PublicCIDRforDomain2",
-            "PrivateIPforDomain2DC",
-            "SourceCidrForRDP"
-          ]
-        },
-        {
-          "Label": {
-            "default": "Amazon EC2 Configuration"
-          },
-          "Parameters": [
-            "InstanceTypeforDomainController",
-            "InstanceTypeforRemoteDesktopGateway",
-            "InstanceTypeforExchange",
-            "InstanceTypeforADMT",
-            "InstanceTypeforClient"
-          ]
-        },
-        {
-          "Label": {
-            "default": "Microsoft Active Directory Configuration for first domain"
-          },
-          "Parameters": [
-            "DNSNameforDomain1",
-            "NetBIOSNameforDomain1",
-            "RestoreModePasswordforDomain1",
-            "DomainAdminUserforDomain1",
-            "DomainAdminPasswordforDomain1"
-          ]
-        },
-        {
-          "Label": {
-            "default": "Microsoft Active Directory Configuration for second domain"
-          },
-          "Parameters": [
-            "DNSNameforDomain2",
-            "NetBIOSNameforDomain2",
-            "RestoreModePasswordforDomain2",
-            "DomainAdminUserforDomain2",
-            "DomainAdminPasswordforDomain2"
-          ]
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Active Directory Migration Lab Cloud Formation Template",
+    "Metadata": {
+        "AWS::Cloudformation::Interface": {
+            "ParameterGroups": [{
+                    "Label": {
+                        "default": "Network Configuration"
+                    },
+                    "Parameters": [
+                        "CIDRforActiveDirectoryMigrationLabVPC",
+                        "PrivateCIDRforDomain1",
+                        "PublicCIDRforDomain1",
+                        "PrivateIPforDomain1DC",
+                        "PrivateCIDRforDomain2",
+                        "PublicCIDRforDomain2",
+                        "PrivateIPforDomain2DC",
+                        "SourceCIDRForRDP"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "EC2 Configuration"
+                    },
+                    "Parameters": [
+                        "KeyPairName",
+                        "InstanceTypeforDomainController",
+                        "InstanceTypeforRemoteDesktopGateway",
+                        "InstanceTypeforExchange",
+                        "InstanceTypeforADMT",
+                        "InstanceTypeforClient"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Domain 1 AD Configuration"
+                    },
+                    "Parameters": [
+                        "DNSNameforDomain1",
+                        "NetBIOSNameforDomain1",
+                        "RestoreModePasswordforDomain1",
+                        "DomainAdminUserforDomain1",
+                        "DomainAdminPasswordforDomain1"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Domain 2 AD Configuration"
+                    },
+                    "Parameters": [
+                        "DNSNameforDomain2",
+                        "NetBIOSNameforDomain2",
+                        "RestoreModePasswordforDomain2",
+                        "DomainAdminUserforDomain2",
+                        "DomainAdminPasswordforDomain2"
+                    ]
+                }
+            ],
+            "ParameterLabels": {
+                "KeyPairName": {
+                    "default": "Key Pair Name"
+                },
+                "CIDRforActiveDirectoryMigrationLabVPC": {
+                    "default": "VPC CIDR"
+                },
+                "PrivateCIDRforDomain1": {
+                    "default": "Private Subnet CIDR Domain 1"
+                },
+                "PrivateCIDRforDomain2": {
+                    "default": "Private Subnet CIDR Domain 2"
+                },
+                "PublicCIDRforDomain1": {
+                    "default": "Public Subnet CIDR Domain 1"
+                },
+                "PublicCIDRforDomain2": {
+                    "default": "Public Subnet CIDR Domain 2"
+                },
+                "PrivateIPforDomain1DC": {
+                    "default": "Private IP for Domain 1 DC"
+                },
+                "PrivateIPforDomain2DC": {
+                    "default": "Private IP for Domain 2 DC"
+                },
+                "InstanceTypeforDomainController": {
+                    "default": "Domain Controllers Instance Type"
+                },
+                "InstanceTypeforRemoteDesktopGateway": {
+                    "default": "Remote Desktop Gateway Servers Instance Type"
+                },
+                "InstanceTypeforExchange": {
+                    "default": "Exchange Server Instance Type"
+                },
+                "InstanceTypeforADMT": {
+                    "default": "ADMT Instance Type"
+                },
+                "InstanceTypeforClient": {
+                    "default": "Client Instance Type"
+                },
+                "DNSNameforDomain1": {
+                    "default": "First Domain FQDN"
+                },
+                "NetBIOSNameforDomain1": {
+                    "default": "First Domain NetBIOS Name"
+                },
+                "RestoreModePasswordforDomain1": {
+                    "default": "Password for Restore Mode for first Domain"
+                },
+                "DomainAdminUserforDomain1": {
+                    "default": "Username of Domain Administrator account"
+                },
+                "DomainAdminPasswordforDomain1": {
+                    "default": "Password of Domain Administrator account"
+                },
+                "DNSNameforDomain2": {
+                    "default": "Second Domain FQDN"
+                },
+                "NetBIOSNameforDomain2": {
+                    "default": "Second Domain NetBIOS Name"
+                },
+                "RestoreModePasswordforDomain2": {
+                    "default": "Password for Restore Mode for second Domain"
+                },
+                "DomainAdminUserforDomain2": {
+                    "default": "Username of Domain Administrator account"
+                },
+                "DomainAdminPasswordforDomain2": {
+                    "default": "Password of Domain Administrator account"
+                },
+                "SourceCIDRForRDP": {
+                    "default": "The CIDR of the network you will be connecting from"
+                }
+            }
         }
-      ],
-      "ParameterLabels": {
+    },
+    "Parameters": {
+        "KeyPairName": {
+            "Description": "Key pair used to securely connect to your instance after it launches",
+            "Type": "AWS::EC2::KeyPair::KeyName"
+        },
         "CIDRforActiveDirectoryMigrationLabVPC": {
-          "default": "IP Range (CIDR) for the Lab VPC"
-        },
-        "PrivateCIDRforDomain1": {
-          "default": "Private Subnet CIDR for Domain 1"
-        },
-        "PrivateCIDRforDomain2": {
-          "default": "Private Subnet CIDR for Domain 2"
-        },
-        "PublicCIDRforDomain1": {
-          "default": "Public Subnet CIDR for Domain 1 (for internet facing systems)"
-        },
-        "PublicCIDRforDomain2": {
-          "default": "Public Subnet CIDR for Domain 2 (for internet facing systems)"
-        },
-        "PrivateIPforDomain1DC": {
-          "default": "Private IP for Domain Controller in Domain 1"
-        },
-        "PrivateIPforDomain2DC": {
-          "default": "Private IP for Domain Controller in Domain 2"
+            "Description": "CIDR of the VPC",
+            "Type": "String",
+            "Default": "10.0.0.0/16",
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
+            "ConstraintDescription": "Must be a properly formatted CIDR value"
         },
         "InstanceTypeforDomainController": {
-          "default": "EC2 Instance Type for both Domain Controllers"
+            "Description": "EC2 instance type for the Domain Controllers",
+            "Type": "String",
+            "Default": "t2.micro",
+            "AllowedValues": [
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large"
+            ]
         },
         "InstanceTypeforRemoteDesktopGateway": {
-          "default": "EC2 Instance Type for both Remote Desktop Gateway Servers"
+            "Description": "EC2 instance type for the Remote Desktop Gateway Servers",
+            "Type": "String",
+            "Default": "t2.large",
+            "AllowedValues": [
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "t2.xlarge",
+                "m4.large",
+                "m4.xlarge"
+            ]
         },
         "InstanceTypeforExchange": {
-          "default": "EC2 Instance Type for Exchange Server"
+            "Description": "EC2 instance type for the Exchange Server",
+            "Type": "String",
+            "Default": "t2.large",
+            "AllowedValues": [
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "t2.xlarge",
+                "m4.large",
+                "m4.xlarge"
+            ]
         },
         "InstanceTypeforADMT": {
-          "default": "EC2 Instance Type for Active Directory Migration Tool (ADMT) Server"
+            "Description": "EC2 instance type for the ADMT Server",
+            "Type": "String",
+            "Default": "t2.medium",
+            "AllowedValues": [
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "t2.xlarge",
+                "m4.large",
+                "m4.xlarge"
+            ]
         },
         "InstanceTypeforClient": {
-          "default": "EC2 Instance Type for Client system"
+            "Description": "EC2 instance type for the Test Client",
+            "Type": "String",
+            "Default": "t2.small",
+            "AllowedValues": [
+                "t2.nano",
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "t2.xlarge",
+                "m4.large",
+                "m4.xlarge"
+            ]
+        },
+        "SourceCIDRForRDP": {
+            "Description": "The IP CIDR to grant RDP access to (typically your own IP address)",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "AllowedPattern": "^([0-9]+\\.){3}[0-9]+\\/[0-9]+$",
+            "ConstraintDescription": "Must be a properly formatted CIDR value"
         },
         "DNSNameforDomain1": {
-          "default": "Fully Qualified Domain Name (FQDN) of the first Domain (ie contoso.com)"
+            "Description": "Fully qualified domain name (FQDN) of the first forest root domain e.g. corp.example.com",
+            "Type": "String",
+            "Default": "contoso.com",
+            "MinLength": "3",
+            "MaxLength": "25",
+            "AllowedPattern": "[a-zA-Z0-9]+\\..+",
+            "ConstraintDescription": "The DNS Name must be at least three characters and at most 25 characters with alphanumeric characters only"
         },
         "NetBIOSNameforDomain1": {
-          "default": "NetBIOS Name of the first Domain (ie. CONTOSO)"
+            "Description": "NetBIOS name of the first domain (upto 15 characters) for users of earlier versions of Windows e.g. CORP",
+            "Type": "String",
+            "Default": "CONTOSO",
+            "MinLength": "1",
+            "MaxLength": "15",
+            "AllowedPattern": "[a-zA-Z0-9]+",
+            "ConstraintDescription": "The NetBIOS Name must be at least one character and at most 15 characters with alphanumeric characters only"
+        },
+        "PrivateCIDRforDomain1": {
+            "Description": "CIDR of the private subnet used by the first domain",
+            "Type": "String",
+            "Default": "10.0.11.0/24",
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
+            "ConstraintDescription": "Must be a properly formatted CIDR value"
+        },
+        "PrivateIPforDomain1DC": {
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+            "Default": "10.0.11.10",
+            "Description": "Fixed private IP for the first Active Directory server",
+            "Type": "String"
+        },
+        "PublicCIDRforDomain1": {
+            "Description": "CIDR of the private subnet used by the first domain",
+            "Type": "String",
+            "Default": "10.0.10.0/24",
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
+            "ConstraintDescription": "Must be a properly formatted CIDR value"
         },
         "RestoreModePasswordforDomain1": {
-          "default": "Password for Active Directory Restore Mode for the first Domain"
+            "Description": "Password for Restore Mode for the first domain. Must be at least 8 characters containing letters, numbers and symbols",
+            "Type": "String",
+            "MinLength": "8",
+            "MaxLength": "32",
+            "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
+            "NoEcho": "True"
         },
         "DomainAdminUserforDomain1": {
-          "default": "Username of a custom Domain Administrator account"
+            "Description": "Name for first Domain Admin account",
+            "Type": "String",
+            "MinLength": "5",
+            "MaxLength": "25",
+            "AllowedPattern": "[a-zA-Z0-9]*",
+            "Default": "awsdomainadmin",
+            "ConstraintDescription": "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
         },
         "DomainAdminPasswordforDomain1": {
-          "default": "Password of the custom Domain Administrator account"
+            "Description": "Password for second Administrator account for the first domain. Must be at least 8 characters containing letters, numbers and symbols",
+            "Type": "String",
+            "MinLength": "8",
+            "MaxLength": "32",
+            "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
+            "NoEcho": "True"
         },
         "DNSNameforDomain2": {
-          "default": "Fully Qualified Domain Name (FQDN) of the second Domain (ie contoso.com)"
+            "Description": "Fully qualified domain name (FQDN) of the second forest root domain e.g. corp.example.com",
+            "Type": "String",
+            "Default": "fabrikam.com",
+            "MinLength": "3",
+            "MaxLength": "25",
+            "AllowedPattern": "[a-zA-Z0-9]+\\..+",
+            "ConstraintDescription": "The DNS Name must be at least three characters and at most 25 characters with alphanumeric characters only"
         },
         "NetBIOSNameforDomain2": {
-          "default": "NetBIOS Name of the second Domain (ie. CONTOSO)"
+            "Description": "NetBIOS name of the second domain (upto 15 characters) for users of earlier versions of Windows e.g. CORP",
+            "Type": "String",
+            "Default": "FABRIKAM",
+            "MinLength": "1",
+            "MaxLength": "15",
+            "AllowedPattern": "[a-zA-Z0-9]+",
+            "ConstraintDescription": "The NetBIOS Name must be at least one character and at most 15 characters with alphanumeric characters only"
+        },
+        "PrivateCIDRforDomain2": {
+            "Description": "CIDR of the private subnet used by the second domain",
+            "Type": "String",
+            "Default": "10.0.21.0/24",
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
+            "ConstraintDescription": "Must be a properly formatted CIDR value"
+        },
+        "PrivateIPforDomain2DC": {
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
+            "Default": "10.0.21.10",
+            "Description": "Fixed private IP for the second Active Directory server",
+            "Type": "String"
+        },
+        "PublicCIDRforDomain2": {
+            "Description": "CIDR of the public subnet used by the second domain",
+            "Type": "String",
+            "Default": "10.0.20.0/24",
+            "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
+            "ConstraintDescription": "Must be a properly formatted CIDR value"
         },
         "RestoreModePasswordforDomain2": {
-          "default": "Password for Active Directory Restore Mode for the second Domain"
+            "Description": "Password for Restore Mode for the second domain. Must be at least 8 characters containing letters, numbers and symbols",
+            "Type": "String",
+            "MinLength": "8",
+            "MaxLength": "32",
+            "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
+            "NoEcho": "True"
         },
         "DomainAdminUserforDomain2": {
-          "default": "Username of a custom Domain Administrator account"
+            "Description": "Name for second Domain Admin account",
+            "Type": "String",
+            "Default": "awsdomainadmin",
+            "MinLength": "3",
+            "MaxLength": "25",
+            "AllowedPattern": "[a-zA-Z0-9]*",
+            "ConstraintDescription": "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
         },
         "DomainAdminPasswordforDomain2": {
-          "default": "Password of the custom Domain Administrator account"
-        },
-        "SourceCidrForRDP" : {
-          "default": "The CIDR of the network you will be connecting from"
+            "Description": "Password for second Administrator account for the second domain. Must be at least 8 characters containing letters, numbers and symbols",
+            "Type": "String",
+            "MinLength": "8",
+            "MaxLength": "32",
+            "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
+            "NoEcho": "True"
         }
-      }
-    }
-  },
-  "Parameters": {
-    "CIDRforActiveDirectoryMigrationLabVPC": {
-      "Description": "CIDR of the VPC",
-      "Type": "String",
-      "Default": "10.0.0.0/16",
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
-      "ConstraintDescription": "Must be a properly formatted CIDR value"
     },
-    "InstanceTypeforDomainController": {
-      "Description": "EC2 instance type for the Domain Controllers",
-      "Type": "String",
-      "Default": "t2.micro",
-      "AllowedValues": [
-        "t2.nano",
-        "t2.micro",
-        "t2.small",
-        "t2.medium",
-        "t2.large"
-      ]
-    },
-    "InstanceTypeforRemoteDesktopGateway": {
-      "Description": "EC2 instance type for the Remote Desktop Gateway Servers",
-      "Type": "String",
-      "Default": "t2.large",
-      "AllowedValues": [
-        "t2.nano",
-        "t2.micro",
-        "t2.small",
-        "t2.medium",
-        "t2.large",
-        "t2.xlarge",
-        "m4.large",
-        "m4.xlarge"
-      ]
-    },
-    "InstanceTypeforExchange": {
-      "Description": "EC2 instance type for the Exchange Server",
-      "Type": "String",
-      "Default": "t2.large",
-      "AllowedValues": [
-        "t2.nano",
-        "t2.micro",
-        "t2.small",
-        "t2.medium",
-        "t2.large",
-        "t2.xlarge",
-        "m4.large",
-        "m4.xlarge"
-      ]
-    },
-    "InstanceTypeforADMT": {
-      "Description": "EC2 instance type for the ADMT Server",
-      "Type": "String",
-      "Default": "t2.medium",
-      "AllowedValues": [
-        "t2.nano",
-        "t2.micro",
-        "t2.small",
-        "t2.medium",
-        "t2.large",
-        "t2.xlarge",
-        "m4.large",
-        "m4.xlarge"
-      ]
-    },
-    "InstanceTypeforClient": {
-      "Description": "EC2 instance type for the Test Client",
-      "Type": "String",
-      "Default": "t2.small",
-      "AllowedValues": [
-        "t2.nano",
-        "t2.micro",
-        "t2.small",
-        "t2.medium",
-        "t2.large",
-        "t2.xlarge",
-        "m4.large",
-        "m4.xlarge"
-      ]
-    },
-    "SourceCidrForRDP": {
-      "Description": "The IP CIDR to grant RDP access to (typically your own IP address)",
-      "Type": "String",
-      "MinLength": "9",
-      "MaxLength": "18",
-      "AllowedPattern": "^([0-9]+\\.){3}[0-9]+\\/[0-9]+$",
-      "ConstraintDescription": "Must be a properly formatted CIDR value"
-    },
-    "DNSNameforDomain1": {
-      "Description": "Fully qualified domain name (FQDN) of the first forest root domain e.g. corp.example.com",
-      "Type": "String",
-      "Default": "contoso.com",
-      "MinLength": "3",
-      "MaxLength": "25",
-      "AllowedPattern": "[a-zA-Z0-9]+\\..+",
-      "ConstraintDescription": "The DNS Name must be at least three characters and at most 25 characters with alphanumeric characters only"
-    },
-    "NetBIOSNameforDomain1": {
-      "Description": "NetBIOS name of the first domain (upto 15 characters) for users of earlier versions of Windows e.g. CORP",
-      "Type": "String",
-      "Default": "CONTOSO",
-      "MinLength": "1",
-      "MaxLength": "15",
-      "AllowedPattern": "[a-zA-Z0-9]+",
-      "ConstraintDescription": "The NetBIOS Name must be at least one character and at most 15 characters with alphanumeric characters only"
-    },
-    "PrivateCIDRforDomain1": {
-      "Description": "CIDR of the private subnet used by the first domain",
-      "Type": "String",
-      "Default": "10.0.11.0/24",
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
-      "ConstraintDescription": "Must be a properly formatted CIDR value"
-    },
-    "PrivateIPforDomain1DC": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-      "Default": "10.0.11.10",
-      "Description": "Fixed private IP for the first Active Directory server",
-      "Type": "String"
-    },
-    "PublicCIDRforDomain1": {
-      "Description": "CIDR of the private subnet used by the first domain",
-      "Type": "String",
-      "Default": "10.0.10.0/24",
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
-      "ConstraintDescription": "Must be a properly formatted CIDR value"
-    },
-    "RestoreModePasswordforDomain1": {
-      "Description": "Password for Restore Mode for the first domain. Must be at least 8 characters containing letters, numbers and symbols",
-      "Type": "String",
-      "MinLength": "8",
-      "MaxLength": "32",
-      "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
-      "NoEcho": "True"
-    },
-    "DomainAdminUserforDomain1": {
-      "Description": "Name for first Domain Admin account",
-      "Type": "String",
-      "MinLength": "5",
-      "MaxLength": "25",
-      "AllowedPattern": "[a-zA-Z0-9]*",
-      "Default": "awsdomainadmin",
-      "ConstraintDescription": "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
-    },
-    "DomainAdminPasswordforDomain1": {
-      "Description": "Password for second Administrator account for the first domain. Must be at least 8 characters containing letters, numbers and symbols",
-      "Type": "String",
-      "MinLength": "8",
-      "MaxLength": "32",
-      "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
-      "NoEcho": "True"
-    },
-    "DNSNameforDomain2": {
-      "Description": "Fully qualified domain name (FQDN) of the second forest root domain e.g. corp.example.com",
-      "Type": "String",
-      "Default": "fabrikam.com",
-      "MinLength": "3",
-      "MaxLength": "25",
-      "AllowedPattern": "[a-zA-Z0-9]+\\..+",
-      "ConstraintDescription": "The DNS Name must be at least three characters and at most 25 characters with alphanumeric characters only"
-    },
-    "NetBIOSNameforDomain2": {
-      "Description": "NetBIOS name of the second domain (upto 15 characters) for users of earlier versions of Windows e.g. CORP",
-      "Type": "String",
-      "Default": "FABRIKAM",
-      "MinLength": "1",
-      "MaxLength": "15",
-      "AllowedPattern": "[a-zA-Z0-9]+",
-      "ConstraintDescription": "The NetBIOS Name must be at least one character and at most 15 characters with alphanumeric characters only"
-    },
-    "PrivateCIDRforDomain2": {
-      "Description": "CIDR of the private subnet used by the second domain",
-      "Type": "String",
-      "Default": "10.0.21.0/24",
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
-      "ConstraintDescription": "Must be a properly formatted CIDR value"
-    },
-    "PrivateIPforDomain2DC": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$",
-      "Default": "10.0.21.10",
-      "Description": "Fixed private IP for the second Active Directory server",
-      "Type": "String"
-    },
-    "PublicCIDRforDomain2": {
-      "Description": "CIDR of the public subnet used by the second domain",
-      "Type": "String",
-      "Default": "10.0.20.0/24",
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$",
-      "ConstraintDescription": "Must be a properly formatted CIDR value"
-    },
-    "RestoreModePasswordforDomain2": {
-      "Description": "Password for Restore Mode for the second domain. Must be at least 8 characters containing letters, numbers and symbols",
-      "Type": "String",
-      "MinLength": "8",
-      "MaxLength": "32",
-      "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
-      "NoEcho": "True"
-    },
-    "DomainAdminUserforDomain2": {
-      "Description": "Name for second Domain Admin account",
-      "Type": "String",
-      "Default": "awsdomainadmin",
-      "MinLength": "3",
-      "MaxLength": "25",
-      "AllowedPattern": "[a-zA-Z0-9]*",
-      "ConstraintDescription": "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
-    },
-    "DomainAdminPasswordforDomain2": {
-      "Description": "Password for second Administrator account for the second domain. Must be at least 8 characters containing letters, numbers and symbols",
-      "Type": "String",
-      "MinLength": "8",
-      "MaxLength": "32",
-      "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
-      "NoEcho": "True"
-    }
-  },
-  "Mappings": {
-    "AWSRegion2AMI": {
-      "ap-southeast-2": {
-        "Windows2008sp2": "ami-7d35d31f",
-        "Windows2008r2sp1": "ami-29cd2a4b",
-        "Windows2012r2": "ami-ed33d48f"
-      }
-    }
-  },
-  "Conditions": {},
-  "Resources": {
-    "ActiveDirectoryMigrationLabDHCPOptions": {
-      "Type": "AWS::EC2::DHCPOptions",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"ADML DHCP Options"},
-          {"Key":"Description","Value":"DHCP Options for VPC"}
-        ],
-        "DomainName": "ap-southeast-2.compute.internal",
-        "DomainNameServers": ["AmazonProvidedDNS"]
-      }
-    },
-    "ActiveDirectoryMigrationLabVPC": {
-      "Type": "AWS::EC2::VPC",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"ADML VPC"},
-          {"Key":"Description","Value":"Virtual Private Cloud aka VPC that will contain all the resources"}
-        ],
-        "CidrBlock": {
-          "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-        },
-        "EnableDnsSupport": "true",
-        "EnableDnsHostnames": "true"
-      }
-    },
-    "ActiveDirectoryMigrationLabDefaultNetworkACL": {
-      "Type": "AWS::EC2::NetworkAcl",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"ADML Default Network Access Control List"},
-          {"Key":"Description","Value":"Network Access Control list applied to the VPC"}
-        ],
-        "VpcId": {
-          "Ref": "ActiveDirectoryMigrationLabVPC"
+    "Mappings": {
+        "AWSRegion2AMI": {
+            "ap-southeast-2": {
+                "Windows2008sp2": "ami-7d35d31f",
+                "Windows2008r2sp1": "ami-29cd2a4b",
+                "Windows2012r2": "ami-ed33d48f"
+            }
         }
-      }
     },
-
-    "NetworkACLforAllowIncomingPingfromInternet": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+    "Resources": {
+        "ActiveDirectoryMigrationLabDHCPOptions": {
+            "Type": "AWS::EC2::DHCPOptions",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "ADML DHCP Options"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "DHCP Options for VPC"
+                    }
+                ],
+                "DomainName": "ap-southeast-2.compute.internal",
+                "DomainNameServers": ["AmazonProvidedDNS"]
+            }
         },
-        "RuleNumber": "100",
-        "Protocol": "-1",
-        "RuleAction": "Allow",
-        "Egress": "false",
-        "CidrBlock": "0.0.0.0/0",
-        "Icmp": {
-          "Code": "-1",
-          "Type": "-1"
-        }
-      }
-    },
-    "NetworkACLforAllowIncomingRDPfromRDPCIDR": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+        "ActiveDirectoryMigrationLabVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "ADML VPC"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Virtual Private Cloud aka VPC that will contain all the resources"
+                    }
+                ],
+                "CidrBlock": {
+                    "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                },
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true"
+            }
         },
-        "RuleNumber": "3389",
-        "Protocol": "6",
-        "RuleAction": "Allow",
-        "Egress": "false",
-        "CidrBlock": "0.0.0.0/0",
-        "PortRange": {
-          "From": "3389",
-          "To": "3389"
-        }
-      }
-    },
-
-    "AssociateNetworkACLtoDomain1PublicSubnet": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
-        },
-        "NetworkAclId": {
-          "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
-        }
-      }
-    },
-    "AssociateNetworkACLtoDomain2PublicSubnet": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
-        },
-        "NetworkAclId": {
-          "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
-        }
-      }
-    },
-
-    "ActiveDirectoryMigrationLabVPCDHCPOptionsAssociation": {
-      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
-      "Properties": {
-        "VpcId": {
-          "Ref": "ActiveDirectoryMigrationLabVPC"
-        },
-        "DhcpOptionsId": {
-          "Ref": "ActiveDirectoryMigrationLabDHCPOptions"
-        }
-      }
-    },
-
-    "ActiveDirectoryMigrationLabDomain1PublicSubnet": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 1 Public Subnet"},
-          {"Key":"Description","Value":"Subnet object for the Remote Desktop Gateway Server associated with Domain 1"}
-        ],
-        "AvailabilityZone": {
-          "Fn::Select": ["0", {
-            "Fn::GetAZs": {
-              "Ref": "AWS::Region"
-            }
-          }]
-        },
-        "VpcId": {
-          "Ref": "ActiveDirectoryMigrationLabVPC"
-        },
-        "CidrBlock": "10.0.10.0/24"
-      }
-    },
-    "ActiveDirectoryMigrationLabDomain1PrivateSubnet": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 1 Private Subnet"},
-          {"Key":"Description","Value":"Subnet object for the other servers associated with Domain 1"}
-        ],
-        "AvailabilityZone": {
-          "Fn::Select": ["0", {
-            "Fn::GetAZs": {
-              "Ref": "AWS::Region"
-            }
-          }]
-        },
-        "VpcId": {
-          "Ref": "ActiveDirectoryMigrationLabVPC"
-        },
-        "CidrBlock": {
-          "Ref": "PrivateCIDRforDomain1"
-        }
-      }
-    },
-    "ActiveDirectoryMigrationLabDomain2PublicSubnet": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 2 Public Subnet"},
-          {"Key":"Description","Value":"Subnet object for the Remote Desktop Gateway Server associated with Domain 2"}
-        ],
-        "AvailabilityZone": {
-          "Fn::Select": ["1", {
-            "Fn::GetAZs": {
-              "Ref": "AWS::Region"
-            }
-          }]
-        },
-        "VpcId": {
-          "Ref": "ActiveDirectoryMigrationLabVPC"
-        },
-        "CidrBlock": "10.0.20.0/24"
-      }
-    },
-    "ActiveDirectoryMigrationLabDomain2PrivateSubnet": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 2 Private Subnet"},
-          {"Key":"Description","Value":"Subnet object for the other Servers associated with Domain 2"}
-        ],
-        "AvailabilityZone": {
-          "Fn::Select": ["1", {
-            "Fn::GetAZs": {
-              "Ref": "AWS::Region"
-            }
-          }]
-        },
-        "VpcId": {
-          "Ref": "ActiveDirectoryMigrationLabVPC"
-        },
-        "CidrBlock": {
-          "Ref": "PrivateCIDRforDomain2"
-        }
-      }
-    },
-
-    "ActiveDirectoryMigrationLabInternetGateway": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Internet Gateway"},
-          {"Key":"Description","Value":"Allows connection to the internet"}
-        ]
-      }
-    },
-    "AttachInternetGatewaytoVPC": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "Properties": {
-        "VpcId": {
-          "Ref": "ActiveDirectoryMigrationLabVPC"
-        },
-        "InternetGatewayId": {
-          "Ref": "ActiveDirectoryMigrationLabInternetGateway"
-        }
-      }
-    },
-    "RouteTableforPublicSubnets": {
-      "Type": "AWS::EC2::RouteTable",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Route table"},
-          {"Key":"Description","Value":"Contains routers to be associated with a subnet object"}
-        ],
-        "VpcId": {
-          "Ref": "ActiveDirectoryMigrationLabVPC"
-        }
-      }
-    },
-    "RouteforPublicSubnetstoInternet": {
-      "DependsOn":"AttachInternetGatewaytoVPC",
-      "Type": "AWS::EC2::Route",
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "RouteTableId": {
-          "Ref": "RouteTableforPublicSubnets"
-        },
-        "GatewayId": {
-          "Ref": "ActiveDirectoryMigrationLabInternetGateway"
-        }
-      }
-
-    },
-
-    "AssociateRouteTabletoDomain1PublicSubnet": {
-      "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
-        },
-        "RouteTableId": {
-          "Ref": "RouteTableforPublicSubnets"
-        }
-      }
-    },
-    "AssociateRouteTabletoDomain2PublicSubnet": {
-      "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
-        },
-        "RouteTableId": {
-          "Ref": "RouteTableforPublicSubnets"
-        }
-      }
-    },
-
-
-
-    
-    "SecurityGroupWindows" : {
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Windows security group"},
-          {"Key":"Description","Value":"Contains standard rules to allow traffic required for Active Directory and associated Windows services"}
-        ],
-        "GroupDescription" : "Security Group with baseline set of rules for Windows Servers",
-        "SecurityGroupIngress" : [ 
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "53",
-            "ToPort": "53",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "53",
-            "ToPort": "53",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "88",
-            "ToPort": "88",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "88",
-            "ToPort": "88",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "123",
-            "ToPort": "123",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "123",
-            "ToPort": "123",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "135",
-            "ToPort": "135",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "137",
-            "ToPort": "137",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "138",
-            "ToPort": "138",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "139",
-            "ToPort": "139",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "389",
-            "ToPort": "389",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "389",
-            "ToPort": "389",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "445",
-            "ToPort": "445",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "445",
-            "ToPort": "445",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "464",
-            "ToPort": "464",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "464",
-            "ToPort": "464",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "636",
-            "ToPort": "636",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "1024",
-            "ToPort": "5000",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "udp",
-            "FromPort": "1024",
-            "ToPort": "5000",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "3268",
-            "ToPort": "3268",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "3269",
-            "ToPort": "3269",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "5722",
-            "ToPort": "5722",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "9389",
-            "ToPort": "9389",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "49152",
-            "ToPort": "65535",
-            "CidrIp": {
-              "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
-            }
-          },
-            {
-              "IpProtocol": "tcp",
-              "FromPort": "3389",
-              "ToPort": "3389",
-              "CidrIp": {
-                "Ref": "PublicCIDRforDomain1" 
-              }
-            },
-              {
-                "IpProtocol": "tcp",
-                "FromPort": "3389",
-                "ToPort": "3389",
-                "CidrIp": {
-                  "Ref": "PublicCIDRforDomain2"
+        "ActiveDirectoryMigrationLabDefaultNetworkACL": {
+            "Type": "AWS::EC2::NetworkAcl",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "ADML Default Network Access Control List"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Network Access Control list applied to the VPC"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
                 }
-                  
-          }],
-          "VpcId": {
-            "Ref": "ActiveDirectoryMigrationLabVPC"
-          }
-        }
-      },
-
-
-
-
-
-
-
-
-    "ActiveDirectoryMigrationLabDomain1DomainController": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 1 Domain Controller"},
-          {"Key":"Description","Value":"EC2 Instance for the Domain Controller of Domain 1"}
-        ],
-        "ImageId": {
-          "Fn::FindInMap": [
-            "AWSRegion2AMI",
-            {
-              "Ref": "AWS::Region"
-            },
-            "Windows2008r2sp1"
-          ]
+            }
         },
-        "InstanceType": {
-          "Ref": "InstanceTypeforDomainController"
+
+        "NetworkACLforAllowIncomingPingfromInternet": {
+            "Type": "AWS::EC2::NetworkAclEntry",
+            "Properties": {
+                "NetworkAclId": {
+                    "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+                },
+                "RuleNumber": "100",
+                "Protocol": "-1",
+                "RuleAction": "Allow",
+                "Egress": "false",
+                "CidrBlock": "0.0.0.0/0",
+                "Icmp": {
+                    "Code": "-1",
+                    "Type": "-1"
+                }
+            }
         },
-        "PrivateIpAddress": "10.0.11.10",
-        "SecurityGroupIds": [{
-            "Ref": "SecurityGroupWindows"
-          }
-        ],
-        "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain1PrivateSubnet"
+        "NetworkACLforAllowIncomingRDPfromRDPCIDR": {
+            "Type": "AWS::EC2::NetworkAclEntry",
+            "Properties": {
+                "NetworkAclId": {
+                    "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+                },
+                "RuleNumber": "3389",
+                "Protocol": "6",
+                "RuleAction": "Allow",
+                "Egress": "false",
+                "CidrBlock": "0.0.0.0/0",
+                "PortRange": {
+                    "From": "3389",
+                    "To": "3389"
+                }
+            }
+        },
+
+        "AssociateNetworkACLtoDomain1PublicSubnet": {
+            "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
+                },
+                "NetworkAclId": {
+                    "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+                }
+            }
+        },
+        "AssociateNetworkACLtoDomain2PublicSubnet": {
+            "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
+                },
+                "NetworkAclId": {
+                    "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+                }
+            }
+        },
+
+        "ActiveDirectoryMigrationLabVPCDHCPOptionsAssociation": {
+            "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                },
+                "DhcpOptionsId": {
+                    "Ref": "ActiveDirectoryMigrationLabDHCPOptions"
+                }
+            }
+        },
+
+        "ActiveDirectoryMigrationLabDomain1PublicSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 1 Public Subnet"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Subnet object for the Remote Desktop Gateway Server associated with Domain 1"
+                    }
+                ],
+                "AvailabilityZone": {
+                    "Fn::Select": ["0", {
+                        "Fn::GetAZs": {
+                            "Ref": "AWS::Region"
+                        }
+                    }]
+                },
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                },
+                "CidrBlock": "10.0.10.0/24"
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain1PrivateSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 1 Private Subnet"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Subnet object for the other servers associated with Domain 1"
+                    }
+                ],
+                "AvailabilityZone": {
+                    "Fn::Select": ["0", {
+                        "Fn::GetAZs": {
+                            "Ref": "AWS::Region"
+                        }
+                    }]
+                },
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                },
+                "CidrBlock": {
+                    "Ref": "PrivateCIDRforDomain1"
+                }
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain2PublicSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 2 Public Subnet"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Subnet object for the Remote Desktop Gateway Server associated with Domain 2"
+                    }
+                ],
+                "AvailabilityZone": {
+                    "Fn::Select": ["1", {
+                        "Fn::GetAZs": {
+                            "Ref": "AWS::Region"
+                        }
+                    }]
+                },
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                },
+                "CidrBlock": "10.0.20.0/24"
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain2PrivateSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 2 Private Subnet"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Subnet object for the other Servers associated with Domain 2"
+                    }
+                ],
+                "AvailabilityZone": {
+                    "Fn::Select": ["1", {
+                        "Fn::GetAZs": {
+                            "Ref": "AWS::Region"
+                        }
+                    }]
+                },
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                },
+                "CidrBlock": {
+                    "Ref": "PrivateCIDRforDomain2"
+                }
+            }
+        },
+
+        "ActiveDirectoryMigrationLabInternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Internet Gateway"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Allows connection to the internet"
+                    }
+                ]
+            }
+        },
+        "AttachInternetGatewaytoVPC": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                },
+                "InternetGatewayId": {
+                    "Ref": "ActiveDirectoryMigrationLabInternetGateway"
+                }
+            }
+        },
+        "RouteTableforPublicSubnets": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Route table"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Contains routers to be associated with a subnet object"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                }
+            }
+        },
+        "RouteforPublicSubnetstoInternet": {
+            "DependsOn": "AttachInternetGatewaytoVPC",
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "RouteTableId": {
+                    "Ref": "RouteTableforPublicSubnets"
+                },
+                "GatewayId": {
+                    "Ref": "ActiveDirectoryMigrationLabInternetGateway"
+                }
+            }
+
+        },
+
+        "AssociateRouteTabletoDomain1PublicSubnet": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
+                },
+                "RouteTableId": {
+                    "Ref": "RouteTableforPublicSubnets"
+                }
+            }
+        },
+        "AssociateRouteTabletoDomain2PublicSubnet": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
+                },
+                "RouteTableId": {
+                    "Ref": "RouteTableforPublicSubnets"
+                }
+            }
+        },
+        "SecurityGroupWindows": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Windows security group"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Contains standard rules to allow traffic required for Active Directory and associated Windows services"
+                    }
+                ],
+                "GroupDescription": "Security Group with baseline set of rules for Windows Servers",
+                "SecurityGroupIngress": [{
+                        "IpProtocol": "tcp",
+                        "FromPort": "53",
+                        "ToPort": "53",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "53",
+                        "ToPort": "53",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "88",
+                        "ToPort": "88",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "88",
+                        "ToPort": "88",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "123",
+                        "ToPort": "123",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "123",
+                        "ToPort": "123",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "135",
+                        "ToPort": "135",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "137",
+                        "ToPort": "137",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "138",
+                        "ToPort": "138",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "139",
+                        "ToPort": "139",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "389",
+                        "ToPort": "389",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "389",
+                        "ToPort": "389",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "445",
+                        "ToPort": "445",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "445",
+                        "ToPort": "445",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "464",
+                        "ToPort": "464",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "464",
+                        "ToPort": "464",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "636",
+                        "ToPort": "636",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "1024",
+                        "ToPort": "5000",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "udp",
+                        "FromPort": "1024",
+                        "ToPort": "5000",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3268",
+                        "ToPort": "3268",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3269",
+                        "ToPort": "3269",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "5722",
+                        "ToPort": "5722",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "9389",
+                        "ToPort": "9389",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "49152",
+                        "ToPort": "65535",
+                        "CidrIp": {
+                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3389",
+                        "ToPort": "3389",
+                        "CidrIp": {
+                            "Ref": "PublicCIDRforDomain1"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "3389",
+                        "ToPort": "3389",
+                        "CidrIp": {
+                            "Ref": "PublicCIDRforDomain2"
+                        }
+
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                }
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain1DomainController": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 1 Domain Controller"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "EC2 Instance for the Domain Controller of Domain 1"
+                    }
+                ],
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegion2AMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "Windows2008r2sp1"
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "InstanceTypeforDomainController"
+                },
+                "PrivateIpAddress": "10.0.11.10",
+                "SecurityGroupIds": [{
+                    "Ref": "SecurityGroupWindows"
+                }],
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain1PrivateSubnet"
+                },
+                "KeyName": {
+                    "Ref":"KeyPairName"
+                }
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain1RemoteDesktopGateway": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 1 Remote Desktop Gateway"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Remote Desktop Gateway Server for Domain 1 to allow access to resources on the private subnet"
+                    }
+                ],
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegion2AMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "Windows2008r2sp1"
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "InstanceTypeforRemoteDesktopGateway"
+                },
+                "PrivateIpAddress": "10.0.10.10",
+                "SecurityGroupIds": [{
+                    "Ref": "SecurityGroupWindows"
+                }],
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
+                },
+                "KeyName": {
+                    "Ref":"KeyPairName"
+                }
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain1Exchange": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 1 Exchange server"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Microsoft Exchange Server on Domain 1"
+                    }
+                ],
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegion2AMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "Windows2008r2sp1"
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "InstanceTypeforExchange"
+                },
+                "PrivateIpAddress": "10.0.11.11",
+                "SecurityGroupIds": [{
+                    "Ref": "SecurityGroupWindows"
+                }],
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain1PrivateSubnet"
+                },
+                "KeyName": {
+                    "Ref":"KeyPairName"
+                }
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain2DomainController": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 2 Domain Controller"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Domain controller for Domain 2"
+                    }
+                ],
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegion2AMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "Windows2008r2sp1"
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "InstanceTypeforDomainController"
+                },
+                "PrivateIpAddress": "10.0.21.10",
+                "SecurityGroupIds": [{
+                    "Ref": "SecurityGroupWindows"
+                }],
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain2PrivateSubnet"
+                },
+                "KeyName": {
+                    "Ref":"KeyPairName"
+                }
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain2RemoteDesktopGateway": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Domain 2 Remote Desktop Gateway Server"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Allows connection to resources on the private subnet"
+                    }
+                ],
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegion2AMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "Windows2008r2sp1"
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "InstanceTypeforRemoteDesktopGateway"
+                },
+                "PrivateIpAddress": "10.0.20.10",
+                "SecurityGroupIds": [{
+                    "Ref": "SecurityGroupWindows"
+                }],
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
+                },
+                "KeyName": {
+                    "Ref":"KeyPairName"
+                }
+            }
+        },
+        "ActiveDirectoryMigrationLabDomain2ADMT": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "Tags": [{
+                        "Key": "Stack ID",
+                        "Value": {
+                            "Ref": "AWS::StackId"
+                        }
+                    },
+                    {
+                        "Key": "Application",
+                        "Value": "Active Directory Migration Lab"
+                    },
+                    {
+                        "Key": "Name",
+                        "Value": "Active Directory Migration Tool Server"
+                    },
+                    {
+                        "Key": "Description",
+                        "Value": "Server for installing and running ADMT"
+                    }
+                ],
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSRegion2AMI",
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "Windows2008r2sp1"
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "InstanceTypeforADMT"
+                },
+                "PrivateIpAddress": "10.0.21.11",
+                "SecurityGroupIds": [{
+                    "Ref": "SecurityGroupWindows"
+                }],
+                "SubnetId": {
+                    "Ref": "ActiveDirectoryMigrationLabDomain2PrivateSubnet"
+                },
+                "KeyName": {
+                    "Ref":"KeyPairName"
+                }
+            }
         }
-      }
     },
-    "ActiveDirectoryMigrationLabDomain1RemoteDesktopGateway": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 1 Remote Desktop Gateway"},
-          {"Key":"Description","Value":"Remote Desktop Gateway Server for Domain 1 to allow access to resources on the private subnet"}
-        ],
-        "ImageId": {
-          "Fn::FindInMap": [
-            "AWSRegion2AMI",
-            {
-              "Ref": "AWS::Region"
-            },
-            "Windows2008r2sp1"
-          ]
-        },
-        "InstanceType": {
-          "Ref": "InstanceTypeforRemoteDesktopGateway"
-        },
-        "PrivateIpAddress": "10.0.10.10",
-        "SecurityGroupIds": [{
-          "Ref": "SecurityGroupWindows"
+    "Outputs": {
+        "VpcID": {
+            "Description": "ID of the VPC",
+            "Value": {
+                "Ref": "ActiveDirectoryMigrationLabVPC"
+            }
         }
-      ],
-      "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
-        }
-      }
-    },
-    "ActiveDirectoryMigrationLabDomain1Exchange": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 1 Exchange server"},
-          {"Key":"Description","Value":"Microsoft Exchange Server on Domain 1"}
-        ],
-        "ImageId": {
-          "Fn::FindInMap": [
-            "AWSRegion2AMI",
-            {
-              "Ref": "AWS::Region"
-            },
-            "Windows2008r2sp1"
-          ]
-        },
-        "InstanceType": {
-          "Ref": "InstanceTypeforExchange"
-        },
-        "PrivateIpAddress": "10.0.11.11",
-        "SecurityGroupIds": [{
-          "Ref": "SecurityGroupWindows"
-        }
-      ],
-      "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain1PrivateSubnet"
-        }
-      }
-    },
-
-    "ActiveDirectoryMigrationLabDomain2DomainController": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 2 Domain Controller"},
-          {"Key":"Description","Value":"Domain controller for Domain 2"}
-        ],
-        "ImageId": {
-          "Fn::FindInMap": [
-            "AWSRegion2AMI",
-            {
-              "Ref": "AWS::Region"
-            },
-            "Windows2008r2sp1"
-          ]
-        },
-        "InstanceType": {
-          "Ref": "InstanceTypeforDomainController"
-        },
-        "PrivateIpAddress": "10.0.21.10",
-        "SecurityGroupIds": [{
-          "Ref": "SecurityGroupWindows"
-        }
-      ],
-      "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain2PrivateSubnet"
-        }
-      }
-    },
-    "ActiveDirectoryMigrationLabDomain2RemoteDesktopGateway": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Domain 2 Remote Desktop Gateway Server"},
-          {"Key":"Description","Value":"Allows connection to resources on the private subnet"}
-        ],
-        "ImageId": {
-          "Fn::FindInMap": [
-            "AWSRegion2AMI",
-            {
-              "Ref": "AWS::Region"
-            },
-            "Windows2008r2sp1"
-          ]
-        },
-        "InstanceType": {
-          "Ref": "InstanceTypeforRemoteDesktopGateway"
-        },
-        "PrivateIpAddress": "10.0.20.10",
-        "SecurityGroupIds": [{
-          "Ref": "SecurityGroupWindows"
-        }
-      ],
-      "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
-        }
-      }
-    },
-    "ActiveDirectoryMigrationLabDomain2ADMT": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "Tags":[
-          {"Key":"Stack ID","Value":{"Ref":"AWS::StackId"}},
-          {"Key":"Application","Value":"Active Directory Migration Lab"},
-          {"Key":"Name","Value":"Active Directory Migration Tool Server"},
-          {"Key":"Description","Value":"Server for installing and running ADMT"}
-        ],
-        "ImageId": {
-          "Fn::FindInMap": [
-            "AWSRegion2AMI",
-            {
-              "Ref": "AWS::Region"
-            },
-            "Windows2008r2sp1"
-          ]
-        },
-        "InstanceType": {
-          "Ref": "InstanceTypeforADMT"
-        },
-        "PrivateIpAddress": "10.0.21.11",
-        "SecurityGroupIds": [{
-          "Ref": "SecurityGroupWindows"
-        }
-      ],
-      "SubnetId": {
-          "Ref": "ActiveDirectoryMigrationLabDomain2PrivateSubnet"
-        }
-      }
     }
-  },
-  "Outputs": {
-    "VpcID": {
-      "Description": "ID of the VPC",
-      "Value": {
-        "Ref": "ActiveDirectoryMigrationLabVPC"
-      }
-    }
-  }
 
 }
