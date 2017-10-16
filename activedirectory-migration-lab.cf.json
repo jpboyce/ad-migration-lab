@@ -14,8 +14,10 @@
             "CIDRforActiveDirectoryMigrationLabVPC",
             "PrivateCIDRforDomain1",
             "PublicCIDRforDomain1",
+            "PrivateIPforDomain1DC",
             "PrivateCIDRforDomain2",
             "PublicCIDRforDomain2",
+            "PrivateIPforDomain2DC",
             "SourceCidrForRDP"
           ]
         },
@@ -72,7 +74,12 @@
         "PublicCIDRforDomain2": {
           "default": "Public Subnet CIDR for Domain 2 (for internet facing systems)"
         },
-
+        "PrivateIPforDomain1DC": {
+          "default": "Private IP for Domain Controller in Domain 1"
+        },
+        "PrivateIPforDomain2DC": {
+          "default": "Private IP for Domain Controller in Domain 2"
+        },
         "InstanceTypeforDomainController": {
           "default": "EC2 Instance Type for both Domain Controllers"
         },
@@ -88,7 +95,6 @@
         "InstanceTypeforClient": {
           "default": "EC2 Instance Type for Client system"
         },
-
         "DNSNameforDomain1": {
           "default": "Fully Qualified Domain Name (FQDN) of the first Domain (ie contoso.com)"
         },
@@ -118,11 +124,13 @@
         },
         "DomainAdminPasswordforDomain2": {
           "default": "Password of the custom Domain Administrator account"
+        },
+        "SourceCidrForRDP" : {
+          "default": "The CIDR of the network you will be connecting from"
         }
       }
     }
   },
-
   "Parameters": {
     "CIDRforActiveDirectoryMigrationLabVPC": {
       "Description": "CIDR of the VPC",
@@ -250,7 +258,24 @@
       "ConstraintDescription": "Must be a properly formatted CIDR value"
     },
     "RestoreModePasswordforDomain1": {
-      "Description": "Password for a separate Administrator account when the domain controller is in Restore Mode for the first domain. Must be at least 8 characters containing letters, numbers and symbols",
+      "Description": "Password for Restore Mode for the first domain. Must be at least 8 characters containing letters, numbers and symbols",
+      "Type": "String",
+      "MinLength": "8",
+      "MaxLength": "32",
+      "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
+      "NoEcho": "True"
+    },
+    "DomainAdminUserforDomain1": {
+      "Description": "Name for first Domain Admin account",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "25",
+      "AllowedPattern": "[a-zA-Z0-9]+\\..+",
+      "Default": "awsdomainadmin",
+      "ConstraintDescription": "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
+    },
+    "DomainAdminPasswordforDomain1": {
+      "Description": "Password for second Administrator account for the first domain. Must be at least 8 characters containing letters, numbers and symbols",
       "Type": "String",
       "MinLength": "8",
       "MaxLength": "32",
@@ -296,7 +321,24 @@
       "ConstraintDescription": "Must be a properly formatted CIDR value"
     },
     "RestoreModePasswordforDomain2": {
-      "Description": "Password for a separate Administrator account when the domain controller is in Restore Mode for the second domain. Must be at least 8 characters containing letters, numbers and symbols",
+      "Description": "Password for Restore Mode for the second domain. Must be at least 8 characters containing letters, numbers and symbols",
+      "Type": "String",
+      "MinLength": "8",
+      "MaxLength": "32",
+      "AllowedPattern": "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*",
+      "NoEcho": "True"
+    },
+    "DomainAdminUserforDomain2": {
+      "Description": "Name for second Domain Admin account",
+      "Type": "String",
+      "Default": "awsdomainadmin",
+      "MinLength": "3",
+      "MaxLength": "25",
+      "AllowedPattern": "[a-zA-Z0-9]+\\..+",
+      "ConstraintDescription": "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
+    },
+    "DomainAdminPasswordforDomain2": {
+      "Description": "Password for second Administrator account for the second domain. Must be at least 8 characters containing letters, numbers and symbols",
       "Type": "String",
       "MinLength": "8",
       "MaxLength": "32",
