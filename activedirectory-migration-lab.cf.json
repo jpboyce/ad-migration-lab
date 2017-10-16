@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Active Directory Migration Lab Cloud Formation Template",
+    "Description": "Active Directory Migration Lab Cloud Formation Template. **WARNING** This template creates Amazon EC2 Windows instance and related resources. You will be billed for the AWS resources used if you create a stack from this template.",
     "Metadata": {
         "AWS::Cloudformation::Interface": {
             "ParameterGroups": [{
@@ -478,7 +478,6 @@
                 }
             }
         },
-
         "AssociateNetworkACLtoDomain1PublicSubnet": {
             "Type": "AWS::EC2::SubnetNetworkAclAssociation",
             "Properties": {
@@ -501,7 +500,6 @@
                 }
             }
         },
-
         "ActiveDirectoryMigrationLabVPCDHCPOptionsAssociation": {
             "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
             "Properties": {
@@ -513,7 +511,6 @@
                 }
             }
         },
-
         "ActiveDirectoryMigrationLabDomain1PublicSubnet": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
@@ -658,7 +655,6 @@
                 }
             }
         },
-
         "ActiveDirectoryMigrationLabInternetGateway": {
             "Type": "AWS::EC2::InternetGateway",
             "Properties": {
@@ -733,9 +729,7 @@
                     "Ref": "ActiveDirectoryMigrationLabInternetGateway"
                 }
             }
-
         },
-
         "AssociateRouteTabletoDomain1PublicSubnet": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
@@ -988,7 +982,6 @@
                         "CidrIp": {
                             "Ref": "PublicCIDRforDomain2"
                         }
-
                     }
                 ],
                 "VpcId": {
@@ -1281,5 +1274,4 @@
             }
         }
     }
-
 }
