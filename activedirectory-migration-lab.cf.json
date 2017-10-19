@@ -3,7 +3,8 @@
     "Description": "Active Directory Migration Lab Cloud Formation Template. **WARNING** This template creates Amazon EC2 Windows instance and related resources. You will be billed for the AWS resources used if you create a stack from this template.",
     "Metadata": {
         "AWS::Cloudformation::Interface": {
-            "ParameterGroups": [{
+            "ParameterGroups": [
+                {
                     "Label": {
                         "default": "Network Configuration"
                     },
@@ -33,14 +34,21 @@
                 },
                 {
                     "Label": {
+                        "default": "General AD Configuration"
+                    },
+                    "Parameters": [
+                        "DomainAdminUserName",
+                        "DomainAdminUserPassword",
+                        "DomainRestoreModePassword"
+                    ]
+                },
+                {
+                    "Label": {
                         "default": "Domain 1 AD Configuration"
                     },
                     "Parameters": [
                         "DNSNameforDomain1",
-                        "NetBIOSNameforDomain1",
-                        "RestoreModePasswordforDomain1",
-                        "DomainAdminUserforDomain1",
-                        "DomainAdminPasswordforDomain1"
+                        "NetBIOSNameforDomain1"
                     ]
                 },
                 {
@@ -49,14 +57,20 @@
                     },
                     "Parameters": [
                         "DNSNameforDomain2",
-                        "NetBIOSNameforDomain2",
-                        "RestoreModePasswordforDomain2",
-                        "DomainAdminUserforDomain2",
-                        "DomainAdminPasswordforDomain2"
+                        "NetBIOSNameforDomain2"
                     ]
                 }
             ],
             "ParameterLabels": {
+                "DomainAdminUserName": {
+                    "default": "Domain Admin User Name"
+                },
+                "DomainAdminUserPassword": {
+                    "default": "Domain Admin User Password"
+                },
+                "DomainRestoreModePassword": {
+                    "default": "Restore Mode Password"
+                },
                 "KeyPairName": {
                     "default": "Key Pair Name"
                 },
