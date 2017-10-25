@@ -9,7 +9,7 @@
                         "default": "Network Configuration"
                     },
                     "Parameters": [
-                        "CIDRforActiveDirectoryMigrationLabVPC",
+                        "CIDRforLabVPC",
                         "PrivateCIDRforDomain1",
                         "PublicCIDRforDomain1",
                         "PrivateIPforDomain1DC",
@@ -74,7 +74,7 @@
                 "KeyPairName": {
                     "default": "Key Pair Name"
                 },
-                "CIDRforActiveDirectoryMigrationLabVPC": {
+                "CIDRforLabVPC": {
                     "default": "VPC CIDR"
                 },
                 "PrivateCIDRforDomain1": {
@@ -133,7 +133,7 @@
             "Description": "Key pair used to securely connect to your instance after it launches",
             "Type": "AWS::EC2::KeyPair::KeyName"
         },
-        "CIDRforActiveDirectoryMigrationLabVPC": {
+        "CIDRforLabVPC": {
             "Description": "CIDR of the VPC",
             "Type": "String",
             "Default": "10.0.0.0/16",
@@ -332,7 +332,7 @@
         }
     },
     "Resources": {
-        "ActiveDirectoryMigrationLabDHCPOptions": {
+        "LabDHCPOptions": {
             "Type": "AWS::EC2::DHCPOptions",
             "Properties": {
                 "Tags": [{
@@ -358,7 +358,7 @@
                 "DomainNameServers": ["AmazonProvidedDNS"]
             }
         },
-        "ActiveDirectoryMigrationLabVPC": {
+        "LabVPC": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
                 "Tags": [{
@@ -381,13 +381,13 @@
                     }
                 ],
                 "CidrBlock": {
-                    "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                    "Ref": "CIDRforLabVPC"
                 },
                 "EnableDnsSupport": "true",
                 "EnableDnsHostnames": "true"
             }
         },
-        "ActiveDirectoryMigrationLabDefaultNetworkACL": {
+        "LabDefaultNetworkACL": {
             "Type": "AWS::EC2::NetworkAcl",
             "Properties": {
                 "Tags": [{
@@ -410,16 +410,16 @@
                     }
                 ],
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 }
             }
         },
 
-        "NetworkACLforAllowIncomingPingfromInternet": {
+        "NetACLAllowIncomingPingfromInternet": {
             "Type": "AWS::EC2::NetworkAclEntry",
             "Properties": {
                 "NetworkAclId": {
-                    "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+                    "Ref": "LabDefaultNetworkACL"
                 },
                 "RuleNumber": "100",
                 "Protocol": "-1",
@@ -432,11 +432,11 @@
                 }
             }
         },
-        "NetworkACLforAllowIncomingRDPfromRDPCIDR": {
+        "NetACLAllowIncomingRDPfromRDPCIDR": {
             "Type": "AWS::EC2::NetworkAclEntry",
             "Properties": {
                 "NetworkAclId": {
-                    "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+                    "Ref": "LabDefaultNetworkACL"
                 },
                 "RuleNumber": "3389",
                 "Protocol": "6",
@@ -449,40 +449,40 @@
                 }
             }
         },
-        "AssociateNetworkACLtoDomain1PublicSubnet": {
+        "AssociateNetACLtoDomain1PublicSubnet": {
             "Type": "AWS::EC2::SubnetNetworkAclAssociation",
             "Properties": {
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
+                    "Ref": "LabDomain1PublicSubnet"
                 },
                 "NetworkAclId": {
-                    "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+                    "Ref": "LabDefaultNetworkACL"
                 }
             }
         },
-        "AssociateNetworkACLtoDomain2PublicSubnet": {
+        "AssociateNetACLtoDomain2PublicSubnet": {
             "Type": "AWS::EC2::SubnetNetworkAclAssociation",
             "Properties": {
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
+                    "Ref": "LabDomain2PublicSubnet"
                 },
                 "NetworkAclId": {
-                    "Ref": "ActiveDirectoryMigrationLabDefaultNetworkACL"
+                    "Ref": "LabDefaultNetworkACL"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabVPCDHCPOptionsAssociation": {
+        "LabVPCDHCPOptionsAssociation": {
             "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
             "Properties": {
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 },
                 "DhcpOptionsId": {
-                    "Ref": "ActiveDirectoryMigrationLabDHCPOptions"
+                    "Ref": "LabDHCPOptions"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabDomain1PublicSubnet": {
+        "LabDomain1PublicSubnet": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
                 "Tags": [{
@@ -512,12 +512,12 @@
                     }]
                 },
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 },
                 "CidrBlock": "10.0.10.0/24"
             }
         },
-        "ActiveDirectoryMigrationLabDomain1PrivateSubnet": {
+        "LabDomain1PrivateSubnet": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
                 "Tags": [{
@@ -547,14 +547,14 @@
                     }]
                 },
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 },
                 "CidrBlock": {
                     "Ref": "PrivateCIDRforDomain1"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabDomain2PublicSubnet": {
+        "LabDomain2PublicSubnet": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
                 "Tags": [{
@@ -584,12 +584,12 @@
                     }]
                 },
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 },
                 "CidrBlock": "10.0.20.0/24"
             }
         },
-        "ActiveDirectoryMigrationLabDomain2PrivateSubnet": {
+        "LabDomain2PrivateSubnet": {
             "Type": "AWS::EC2::Subnet",
             "Properties": {
                 "Tags": [{
@@ -619,14 +619,14 @@
                     }]
                 },
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 },
                 "CidrBlock": {
                     "Ref": "PrivateCIDRforDomain2"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabInternetGateway": {
+        "LabInternetGateway": {
             "Type": "AWS::EC2::InternetGateway",
             "Properties": {
                 "Tags": [{
@@ -654,10 +654,10 @@
             "Type": "AWS::EC2::VPCGatewayAttachment",
             "Properties": {
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 },
                 "InternetGatewayId": {
-                    "Ref": "ActiveDirectoryMigrationLabInternetGateway"
+                    "Ref": "LabInternetGateway"
                 }
             }
         },
@@ -684,7 +684,7 @@
                     }
                 ],
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 }
             }
         },
@@ -697,7 +697,7 @@
                     "Ref": "RouteTableforPublicSubnets"
                 },
                 "GatewayId": {
-                    "Ref": "ActiveDirectoryMigrationLabInternetGateway"
+                    "Ref": "LabInternetGateway"
                 }
             }
         },
@@ -705,7 +705,7 @@
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
+                    "Ref": "LabDomain1PublicSubnet"
                 },
                 "RouteTableId": {
                     "Ref": "RouteTableforPublicSubnets"
@@ -716,7 +716,7 @@
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
+                    "Ref": "LabDomain2PublicSubnet"
                 },
                 "RouteTableId": {
                     "Ref": "RouteTableforPublicSubnets"
@@ -751,7 +751,7 @@
                         "FromPort": "53",
                         "ToPort": "53",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -759,7 +759,7 @@
                         "FromPort": "53",
                         "ToPort": "53",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -767,7 +767,7 @@
                         "FromPort": "88",
                         "ToPort": "88",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -775,7 +775,7 @@
                         "FromPort": "88",
                         "ToPort": "88",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -783,7 +783,7 @@
                         "FromPort": "123",
                         "ToPort": "123",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -791,7 +791,7 @@
                         "FromPort": "123",
                         "ToPort": "123",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -799,7 +799,7 @@
                         "FromPort": "135",
                         "ToPort": "135",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -807,7 +807,7 @@
                         "FromPort": "137",
                         "ToPort": "137",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -815,7 +815,7 @@
                         "FromPort": "138",
                         "ToPort": "138",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -823,7 +823,7 @@
                         "FromPort": "139",
                         "ToPort": "139",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -831,7 +831,7 @@
                         "FromPort": "389",
                         "ToPort": "389",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -839,7 +839,7 @@
                         "FromPort": "389",
                         "ToPort": "389",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -847,7 +847,7 @@
                         "FromPort": "445",
                         "ToPort": "445",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -855,7 +855,7 @@
                         "FromPort": "445",
                         "ToPort": "445",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -863,7 +863,7 @@
                         "FromPort": "464",
                         "ToPort": "464",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -871,7 +871,7 @@
                         "FromPort": "464",
                         "ToPort": "464",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -879,7 +879,7 @@
                         "FromPort": "636",
                         "ToPort": "636",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -887,7 +887,7 @@
                         "FromPort": "1024",
                         "ToPort": "5000",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -895,7 +895,7 @@
                         "FromPort": "1024",
                         "ToPort": "5000",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -903,7 +903,7 @@
                         "FromPort": "3268",
                         "ToPort": "3268",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -911,7 +911,7 @@
                         "FromPort": "3269",
                         "ToPort": "3269",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -919,7 +919,7 @@
                         "FromPort": "5722",
                         "ToPort": "5722",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -927,7 +927,7 @@
                         "FromPort": "9389",
                         "ToPort": "9389",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -935,7 +935,7 @@
                         "FromPort": "49152",
                         "ToPort": "65535",
                         "CidrIp": {
-                            "Ref": "CIDRforActiveDirectoryMigrationLabVPC"
+                            "Ref": "CIDRforLabVPC"
                         }
                     },
                     {
@@ -956,11 +956,11 @@
                     }
                 ],
                 "VpcId": {
-                    "Ref": "ActiveDirectoryMigrationLabVPC"
+                    "Ref": "LabVPC"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabDomain1DomainController": {
+        "LabDomain1DomainController": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "Tags": [{
@@ -1001,14 +1001,14 @@
                     "Ref": "SecurityGroupWindows"
                 }],
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain1PrivateSubnet"
+                    "Ref": "LabDomain1PrivateSubnet"
                 },
                 "KeyName": {
                     "Ref":"KeyPairName"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabDomain1RemoteDesktopGateway": {
+        "LabDomain1RemoteDesktopGateway": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "Tags": [{
@@ -1047,14 +1047,14 @@
                     "Ref": "SecurityGroupWindows"
                 }],
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain1PublicSubnet"
+                    "Ref": "LabDomain1PublicSubnet"
                 },
                 "KeyName": {
                     "Ref":"KeyPairName"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabDomain1Exchange": {
+        "LabDomain1Exchange": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "Tags": [{
@@ -1093,14 +1093,14 @@
                     "Ref": "SecurityGroupWindows"
                 }],
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain1PrivateSubnet"
+                    "Ref": "LabDomain1PrivateSubnet"
                 },
                 "KeyName": {
                     "Ref":"KeyPairName"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabDomain2DomainController": {
+        "LabDomain2DomainController": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "Tags": [{
@@ -1141,14 +1141,14 @@
                     "Ref": "SecurityGroupWindows"
                 }],
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain2PrivateSubnet"
+                    "Ref": "LabDomain2PrivateSubnet"
                 },
                 "KeyName": {
                     "Ref":"KeyPairName"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabDomain2RemoteDesktopGateway": {
+        "LabDomain2RemoteDesktopGateway": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "Tags": [{
@@ -1187,14 +1187,14 @@
                     "Ref": "SecurityGroupWindows"
                 }],
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain2PublicSubnet"
+                    "Ref": "LabDomain2PublicSubnet"
                 },
                 "KeyName": {
                     "Ref":"KeyPairName"
                 }
             }
         },
-        "ActiveDirectoryMigrationLabDomain2ADMT": {
+        "LabDomain2ADMT": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "Tags": [{
@@ -1233,7 +1233,7 @@
                     "Ref": "SecurityGroupWindows"
                 }],
                 "SubnetId": {
-                    "Ref": "ActiveDirectoryMigrationLabDomain2PrivateSubnet"
+                    "Ref": "LabDomain2PrivateSubnet"
                 },
                 "KeyName": {
                     "Ref":"KeyPairName"
@@ -1245,7 +1245,7 @@
         "VpcID": {
             "Description": "ID of the VPC",
             "Value": {
-                "Ref": "ActiveDirectoryMigrationLabVPC"
+                "Ref": "LabVPC"
             }
         }
     }
