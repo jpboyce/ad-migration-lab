@@ -322,6 +322,29 @@
             "ConstraintDescription": "Must be a properly formatted CIDR value"
         }
     },
+    "Rules": {
+        "SubnetsInVPC": {
+            "Assertions": [
+                {
+                    "Assert": {
+                        "Fn::EachMemberIn": [
+                            {
+                                "Fn::ValueOfAll": [
+                                    "AWS::EC2::Subnet::Id",
+                                    "VpcId"
+                                ]
+                            },
+                            {
+                                "Fn::RefAll": "AWS::EC2::VPC::Id"
+                            }
+                        ]
+                    },
+                    "AssertDescription": "All subnets must be in the VPC"
+                }
+            ]
+        }
+
+    },
     "Mappings": {
         "AWSRegion2AMI": {
             "ap-southeast-2": {
