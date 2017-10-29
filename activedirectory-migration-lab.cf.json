@@ -214,6 +214,7 @@
         },
         "SourceCIDRForRDP": {
             "Description": "The IP CIDR to grant RDP access to",
+            "Default": "124.149.29.58/32",
             "Type": "String",
             "MinLength": "9",
             "MaxLength": "18",
@@ -260,6 +261,7 @@
         },
         "DomainRestoreModePassword": {
             "Description": "Password for Restore Mode for both domains. Must be at least 8 characters containing letters, numbers and symbols",
+            "Default": "FlibbleFlabble321!",
             "Type": "String",
             "MinLength": "8",
             "MaxLength": "32",
@@ -277,6 +279,7 @@
         },
         "DomainAdminUserPassword": {
             "Description": "Password for the Domain Admin account",
+            "Default": "Password123!",
             "Type": "String",
             "MinLength": "8",
             "MaxLength": "32",
