@@ -1051,6 +1051,63 @@
                     }
                 }
                 
+            },
+            "Metadata": {
+                "aws::cloudformation::init": {
+                    "configSets": {
+                        "config": [
+                            "setup",
+                            "rename",
+                            "installADDS",
+                            "configureADSites",
+                            "finalize"
+                        ]
+                    },
+                    "setup": {
+                        "files": {
+                            "c:\\cfn\\cfn-hup.conf": {
+                                "content": {
+                                    "Fn::Join": [
+                                    "",
+                                    [
+                                        "[main]\n",
+                                        "stack=",
+                                        {"Ref": "AWS::Stackname"},
+                                        "\n",
+                                        "region=",
+                                        
+                                        { "Ref": "AWS::Region" },
+                                        "\n"
+                                        
+                                    ]
+                                    ]
+                                }
+                            },
+                            "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf": {
+                                "content": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "[cfn-auto-reloader-hook]\n",
+                                            "triggers=post.update\n",
+                                            "path=Resources.LabDomain1DomainController.Metadata.AWS::CloudFormation::Init\n",
+                                            "action=cfn-init.exe -v -c config -s ",
+                                            {
+                                                "Ref": "AWS::StackId"
+                                            },
+                                            " -r LabDomain1DomainController",
+                                            " --region ",
+                                            {
+                                                "Ref": "AWS::Region"
+                                            },
+                                            "\n"
+                                        ]
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "LabDomain1RemoteDesktopGateway": {
