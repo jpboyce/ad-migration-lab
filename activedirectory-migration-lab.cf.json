@@ -252,6 +252,11 @@
       "Description": "Fixed private IP for the first Active Directory server",
       "Type": "String"
     },
+    "NameforDomain1DC": {
+      "Type": "String",
+      "Default": "",
+      "Description": "Name for the Domain 1 DC"  
+    },
     "PublicCIDRforDomain1": {
       "Description": "CIDR of the private subnet used by the first domain",
       "Type": "String",
@@ -324,6 +329,11 @@
       "Description": "Fixed private IP for the second Active Directory server",
       "Type": "String"
     },
+    "NameforDomain2DC": {
+        "Type": "String",
+        "Default": "",
+        "Description": "Name for the Domain 1 DC"  
+      },
     "PublicCIDRforDomain2": {
       "Description": "CIDR of the public subnet used by the second domain",
       "Type": "String",
@@ -1114,7 +1124,6 @@
                       { "Ref": "AWS::Stackname" },
                       "\n",
                       "region=",
-
                       { "Ref": "AWS::Region" },
                       "\n"
                     ]
@@ -1157,9 +1166,275 @@
                     ]
                   ]
                 }
-              }
+              },
+              "services": {
+                "windows": {
+                    "cfn-hup": {
+                        "enabled": "true",
+                        "ensureRunning": "true",
+                        "files": [
+                            "c:\\cfn\\cfn-hup.conf",
+                            "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"
+                        ]
+                    }
+                }
+            },
+
             }
-          }
+          },
+          "rename": {
+            "commands": {
+                "a-set-static-ip": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -ExecutionPolicy RemoteSigned -Command c:\\cfn\\scripts\\Set-StaticIP.ps1"
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "45"
+                },
+                "b-execute-powershell-script-RenameComputer": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe Rename-Computer -NewName ",
+                                {
+                                    "Ref": "ADServer1NetBIOSName"
+                                },
+                                " -Restart"
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "forever"
+                }
+            }
+        }, "installADDS": {
+            "commands": {
+                "1-install-prereqs": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command \"Install-WindowsFeature AD-Domain-Services, rsat-adds -IncludeAllSubFeature\""
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                },
+                "2-install-adds": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command ",
+                                "\"Install-ADDSForest -DomainName ",
+                                {
+                                    "Ref": "DomainDNSName"
+                                },
+                                " ",
+                                "-SafeModeAdministratorPassword (ConvertTo-SecureString ",
+                                "'",
+                                {
+                                    "Ref": "DomainAdminPassword"
+                                },
+                                "'",
+                                " -AsPlainText -Force) ",
+                                "-DomainMode Win2012R2 ",
+                                "-DomainNetbiosName ",
+                                {
+                                    "Ref": "DomainNetBIOSName"
+                                },
+                                " ",
+                                "-ForestMode Win2012R2 ",
+                                "-Confirm:$false ",
+                                "-Force\""
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "forever"
+                },
+                "3-restart-service": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command Restart-Service NetLogon -EA 0"
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "180"
+                },
+                "4-create-adminuser": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command ",
+                                "\"New-ADUser ",
+                                "-Name ",
+                                {
+                                    "Ref": "DomainAdminUser"
+                                },
+                                " ",
+                                "-UserPrincipalName ",
+                                {
+                                    "Ref": "DomainAdminUser"
+                                },
+                                "@",
+                                {
+                                    "Ref": "DomainDNSName"
+                                },
+                                " ",
+                                "-AccountPassword (ConvertTo-SecureString ",
+                                "'",
+                                {
+                                    "Ref": "DomainAdminPassword"
+                                },
+                                "'",
+                                " -AsPlainText -Force) ",
+                                "-Enabled $true ",
+                                "-PasswordNeverExpires $true\""
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                },
+                "5-update-adminuser": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -ExecutionPolicy RemoteSigned -Command c:\\cfn\\scripts\\ConvertTo-EnterpriseAdmin.ps1 -Members ",
+                                {
+                                    "Ref": "DomainAdminUser"
+                                }
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                }
+            }
+        },
+        "configureSites": {
+            "commands": {
+                "a-rename-default-site": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe ",
+                                "\"",
+                                "Get-ADObject -SearchBase (Get-ADRootDSE).ConfigurationNamingContext -filter {Name -eq 'Default-First-Site-Name'} | Rename-ADObject -NewName AZ1",
+                                "\""
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                },
+                "b-create-site-2": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe New-ADReplicationSite AZ2"
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                },
+                "c-create-publicsubnet-1": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command New-ADReplicationSubnet -Name ",
+                                {
+                                    "Ref": "PublicSubnet1CIDR"
+                                },
+                                " -Site AZ1"
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                },
+                "d-create-publicsubnet-2": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command New-ADReplicationSubnet -Name ",
+                                {
+                                    "Ref": "PublicSubnet2CIDR"
+                                },
+                                " -Site AZ2"
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                },
+                "e-create-privatesubnet-1": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command New-ADReplicationSubnet -Name ",
+                                {
+                                    "Ref": "PrivateSubnet1CIDR"
+                                },
+                                " -Site AZ1"
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                },
+                "f-create-privatesubnet-2": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command New-ADReplicationSubnet -Name ",
+                                {
+                                    "Ref": "PrivateSubnet2CIDR"
+                                },
+                                " -Site AZ2"
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                },
+                "g-set-site-link": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "powershell.exe -Command \"",
+                                "Get-ADReplicationSiteLink -Filter * | Set-ADReplicationSiteLink -SitesIncluded @{add='AZ2'} -ReplicationFrequencyInMinutes 15\""
+                            ]
+                        ]
+                    },
+                    "waitAfterCompletion": "0"
+                }
+            }
+        },
+        "finalize": {
+            "commands": {
+                "a-signal-success": {
+                    "command": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "cfn-signal.exe -e 0 \"",
+                                {
+                                    "Ref": "DomainController1WaitHandle"
+                                },
+                                "\""
+                            ]
+                        ]
+                    }
+                }
         }
       }
     },
