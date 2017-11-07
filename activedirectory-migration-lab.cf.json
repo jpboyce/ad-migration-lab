@@ -1482,6 +1482,34 @@
         "KeyName": {
           "Ref": "KeyPairName"
         }
+      },
+      "Metadata": {
+          "aws::cloudformation::init": {
+              "configSets": {
+                  "config": [
+                      "setup",
+                      "rename",
+                      "join",
+                      "installRDGW",
+                      "finalize"
+                  ]
+              },
+              "setup": {
+
+              },
+              "rename": {
+
+              },
+              "join": {
+
+              },
+              "installRDGW": {
+
+              },
+              "finalize": {
+                  
+              }
+          }
       }
     },
     "LabDomain1Exchange": {
