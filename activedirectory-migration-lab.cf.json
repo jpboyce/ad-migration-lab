@@ -1430,267 +1430,266 @@
             }
           }
         }
-    }
-},
-        "LabDomain1RemoteDesktopGateway": {
-          "Type": "AWS::EC2::Instance",
-          "Properties": {
-            "Tags": [
-              {
-                "Key": "Stack ID",
-                "Value": {
-                  "Ref": "AWS::StackId"
-                }
-              },
-              {
-                "Key": "Application",
-                "Value": "Active Directory Migration Lab"
-              },
-              {
-                "Key": "Name",
-                "Value": "Domain 1 Remote Desktop Gateway"
-              },
-              {
-                "Key": "Description",
-                "Value":
-                  "Remote Desktop Gateway Server for Domain 1 to allow access to resources on the private subnet"
-              }
-            ],
-            "ImageId": {
-              "Fn::FindInMap": [
-                "AWSRegion2AMI",
-                {
-                  "Ref": "AWS::Region"
-                },
-                "Windows2008r2sp1"
-              ]
-            },
-            "InstanceType": {
-              "Ref": "InstanceTypeforRemoteDesktopGateway"
-            },
-            "PrivateIpAddress": "10.0.10.10",
-            "SecurityGroupIds": [
-              {
-                "Ref": "SecurityGroupWindows"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "LabDomain1PublicSubnet"
-            },
-            "KeyName": {
-              "Ref": "KeyPairName"
+      }
+    },
+    "LabDomain1RemoteDesktopGateway": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Stack ID",
+            "Value": {
+              "Ref": "AWS::StackId"
             }
+          },
+          {
+            "Key": "Application",
+            "Value": "Active Directory Migration Lab"
+          },
+          {
+            "Key": "Name",
+            "Value": "Domain 1 Remote Desktop Gateway"
+          },
+          {
+            "Key": "Description",
+            "Value":
+              "Remote Desktop Gateway Server for Domain 1 to allow access to resources on the private subnet"
           }
+        ],
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegion2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            "Windows2008r2sp1"
+          ]
         },
-        "LabDomain1Exchange": {
-          "Type": "AWS::EC2::Instance",
-          "Properties": {
-            "Tags": [
-              {
-                "Key": "Stack ID",
-                "Value": {
-                  "Ref": "AWS::StackId"
-                }
-              },
-              {
-                "Key": "Application",
-                "Value": "Active Directory Migration Lab"
-              },
-              {
-                "Key": "Name",
-                "Value": "Domain 1 Exchange server"
-              },
-              {
-                "Key": "Description",
-                "Value": "Microsoft Exchange Server on Domain 1"
-              }
-            ],
-            "ImageId": {
-              "Fn::FindInMap": [
-                "AWSRegion2AMI",
-                {
-                  "Ref": "AWS::Region"
-                },
-                "Windows2008r2sp1"
-              ]
-            },
-            "InstanceType": {
-              "Ref": "InstanceTypeforExchange"
-            },
-            "PrivateIpAddress": "10.0.11.11",
-            "SecurityGroupIds": [
-              {
-                "Ref": "SecurityGroupWindows"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "LabDomain1PrivateSubnet"
-            },
-            "KeyName": {
-              "Ref": "KeyPairName"
-            }
-          }
+        "InstanceType": {
+          "Ref": "InstanceTypeforRemoteDesktopGateway"
         },
-        "LabDomain2DomainController": {
-          "Type": "AWS::EC2::Instance",
-          "Properties": {
-            "Tags": [
-              {
-                "Key": "Stack ID",
-                "Value": {
-                  "Ref": "AWS::StackId"
-                }
-              },
-              {
-                "Key": "Application",
-                "Value": "Active Directory Migration Lab"
-              },
-              {
-                "Key": "Name",
-                "Value": "Domain 2 Domain Controller"
-              },
-              {
-                "Key": "Description",
-                "Value": "Domain controller for Domain 2"
-              }
-            ],
-            "ImageId": {
-              "Fn::FindInMap": [
-                "AWSRegion2AMI",
-                {
-                  "Ref": "AWS::Region"
-                },
-                "Windows2008r2sp1"
-              ]
-            },
-            "InstanceType": {
-              "Ref": "InstanceTypeforDomainController"
-            },
-            "PrivateIpAddress": {
-              "Ref": "PrivateIPforDomain2DC"
-            },
-            "SecurityGroupIds": [
-              {
-                "Ref": "SecurityGroupWindows"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "LabDomain2PrivateSubnet"
-            },
-            "KeyName": {
-              "Ref": "KeyPairName"
-            }
+        "PrivateIpAddress": "10.0.10.10",
+        "SecurityGroupIds": [
+          {
+            "Ref": "SecurityGroupWindows"
           }
+        ],
+        "SubnetId": {
+          "Ref": "LabDomain1PublicSubnet"
         },
-        "LabDomain2RemoteDesktopGateway": {
-          "Type": "AWS::EC2::Instance",
-          "Properties": {
-            "Tags": [
-              {
-                "Key": "Stack ID",
-                "Value": {
-                  "Ref": "AWS::StackId"
-                }
-              },
-              {
-                "Key": "Application",
-                "Value": "Active Directory Migration Lab"
-              },
-              {
-                "Key": "Name",
-                "Value": "Domain 2 Remote Desktop Gateway Server"
-              },
-              {
-                "Key": "Description",
-                "Value": "Allows connection to resources on the private subnet"
-              }
-            ],
-            "ImageId": {
-              "Fn::FindInMap": [
-                "AWSRegion2AMI",
-                {
-                  "Ref": "AWS::Region"
-                },
-                "Windows2008r2sp1"
-              ]
-            },
-            "InstanceType": {
-              "Ref": "InstanceTypeforRemoteDesktopGateway"
-            },
-            "PrivateIpAddress": "10.0.20.10",
-            "SecurityGroupIds": [
-              {
-                "Ref": "SecurityGroupWindows"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "LabDomain2PublicSubnet"
-            },
-            "KeyName": {
-              "Ref": "KeyPairName"
-            }
-          }
-        },
-        "LabDomain2ADMT": {
-          "Type": "AWS::EC2::Instance",
-          "Properties": {
-            "Tags": [
-              {
-                "Key": "Stack ID",
-                "Value": {
-                  "Ref": "AWS::StackId"
-                }
-              },
-              {
-                "Key": "Application",
-                "Value": "Active Directory Migration Lab"
-              },
-              {
-                "Key": "Name",
-                "Value": "Active Directory Migration Tool Server"
-              },
-              {
-                "Key": "Description",
-                "Value": "Server for installing and running ADMT"
-              }
-            ],
-            "ImageId": {
-              "Fn::FindInMap": [
-                "AWSRegion2AMI",
-                {
-                  "Ref": "AWS::Region"
-                },
-                "Windows2008r2sp1"
-              ]
-            },
-            "InstanceType": {
-              "Ref": "InstanceTypeforADMT"
-            },
-            "PrivateIpAddress": "10.0.21.11",
-            "SecurityGroupIds": [
-              {
-                "Ref": "SecurityGroupWindows"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "LabDomain2PrivateSubnet"
-            },
-            "KeyName": {
-              "Ref": "KeyPairName"
-            }
-          }
-        },
-        "LabDomain1DomainControllerWaitHandle": {
-            "Type": "AWS::CloudFormation::WaitConditionHandle"
-        }
-      },
-      "Outputs": {
-        "VpcID": {
-          "Description": "ID of the VPC",
-          "Value": {
-            "Ref": "LabVPC"
-          }
+        "KeyName": {
+          "Ref": "KeyPairName"
         }
       }
+    },
+    "LabDomain1Exchange": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Stack ID",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Active Directory Migration Lab"
+          },
+          {
+            "Key": "Name",
+            "Value": "Domain 1 Exchange server"
+          },
+          {
+            "Key": "Description",
+            "Value": "Microsoft Exchange Server on Domain 1"
+          }
+        ],
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegion2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            "Windows2008r2sp1"
+          ]
+        },
+        "InstanceType": {
+          "Ref": "InstanceTypeforExchange"
+        },
+        "PrivateIpAddress": "10.0.11.11",
+        "SecurityGroupIds": [
+          {
+            "Ref": "SecurityGroupWindows"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "LabDomain1PrivateSubnet"
+        },
+        "KeyName": {
+          "Ref": "KeyPairName"
+        }
+      }
+    },
+    "LabDomain2DomainController": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Stack ID",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Active Directory Migration Lab"
+          },
+          {
+            "Key": "Name",
+            "Value": "Domain 2 Domain Controller"
+          },
+          {
+            "Key": "Description",
+            "Value": "Domain controller for Domain 2"
+          }
+        ],
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegion2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            "Windows2008r2sp1"
+          ]
+        },
+        "InstanceType": {
+          "Ref": "InstanceTypeforDomainController"
+        },
+        "PrivateIpAddress": {
+          "Ref": "PrivateIPforDomain2DC"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "SecurityGroupWindows"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "LabDomain2PrivateSubnet"
+        },
+        "KeyName": {
+          "Ref": "KeyPairName"
+        }
+      }
+    },
+    "LabDomain2RemoteDesktopGateway": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Stack ID",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Active Directory Migration Lab"
+          },
+          {
+            "Key": "Name",
+            "Value": "Domain 2 Remote Desktop Gateway Server"
+          },
+          {
+            "Key": "Description",
+            "Value": "Allows connection to resources on the private subnet"
+          }
+        ],
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegion2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            "Windows2008r2sp1"
+          ]
+        },
+        "InstanceType": {
+          "Ref": "InstanceTypeforRemoteDesktopGateway"
+        },
+        "PrivateIpAddress": "10.0.20.10",
+        "SecurityGroupIds": [
+          {
+            "Ref": "SecurityGroupWindows"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "LabDomain2PublicSubnet"
+        },
+        "KeyName": {
+          "Ref": "KeyPairName"
+        }
+      }
+    },
+    "LabDomain2ADMT": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Stack ID",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": "Active Directory Migration Lab"
+          },
+          {
+            "Key": "Name",
+            "Value": "Active Directory Migration Tool Server"
+          },
+          {
+            "Key": "Description",
+            "Value": "Server for installing and running ADMT"
+          }
+        ],
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegion2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            "Windows2008r2sp1"
+          ]
+        },
+        "InstanceType": {
+          "Ref": "InstanceTypeforADMT"
+        },
+        "PrivateIpAddress": "10.0.21.11",
+        "SecurityGroupIds": [
+          {
+            "Ref": "SecurityGroupWindows"
+          }
+        ],
+        "SubnetId": {
+          "Ref": "LabDomain2PrivateSubnet"
+        },
+        "KeyName": {
+          "Ref": "KeyPairName"
+        }
+      }
+    },
+    "LabDomain1DomainControllerWaitHandle": {
+      "Type": "AWS::CloudFormation::WaitConditionHandle"
     }
-  
+  },
+  "Outputs": {
+    "VpcID": {
+      "Description": "ID of the VPC",
+      "Value": {
+        "Ref": "LabVPC"
+      }
+    }
+  }
+}
