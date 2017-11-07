@@ -1120,7 +1120,9 @@
                     [
                       "[main]\n",
                       "stack=",
-                      { "Ref": "AWS::Stackname" },
+                      { 
+                          "Ref": "AWS::StackName" 
+                        },
                       "\n",
                       "region=",
                       { "Ref": "AWS::Region" },
