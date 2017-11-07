@@ -1501,13 +1501,47 @@
 
               },
               "join": {
-
+                "commands": {
+                    "a-join-domain": {
+                        "command": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "powershell.exe -Command \"",
+                                    "Add-Computer -DomainName ",
+                                    {
+                                        "Ref": "DNSNameforDomain1"
+                                    },
+                                    " -Credential ",
+                                    "(New-Object System.Management.Automation.PSCredential('",
+                                    {
+                                        "Ref": "NetBIOSNameforDomain1"
+                                    },
+                                    "\\",
+                                    {
+                                        "Ref": "DomainAdminUserName"
+                                    },
+                                    "',",
+                                    "(ConvertTo-SecureString ",
+                                    "'",
+                                    {
+                                        "Ref": "DomainAdminUserPassword"
+                                    },
+                                    "'",
+                                    " -AsPlainText -Force))) ",
+                                    "-Restart\""
+                                ]
+                            ]
+                        },
+                        "waitAfterCompletion": "forever"
+                    }
+                }
               },
               "installRDGW": {
 
               },
               "finalize": {
-                  
+
               }
           }
       }
