@@ -1484,66 +1484,110 @@
         }
       },
       "Metadata": {
-          "aws::cloudformation::init": {
-              "configSets": {
-                  "config": [
-                      "setup",
-                      "rename",
-                      "join",
-                      "installRDGW",
-                      "finalize"
+        "aws::cloudformation::init": {
+          "configSets": {
+            "config": ["setup", "rename", "join", "installRDGW", "finalize"]
+          },
+          "setup": {},
+          "rename": {},
+          "join": {
+            "commands": {
+              "a-join-domain": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "powershell.exe -Command \"",
+                      "Add-Computer -DomainName ",
+                      {
+                        "Ref": "DNSNameforDomain1"
+                      },
+                      " -Credential ",
+                      "(New-Object System.Management.Automation.PSCredential('",
+                      {
+                        "Ref": "NetBIOSNameforDomain1"
+                      },
+                      "\\",
+                      {
+                        "Ref": "DomainAdminUserName"
+                      },
+                      "',",
+                      "(ConvertTo-SecureString ",
+                      "'",
+                      {
+                        "Ref": "DomainAdminUserPassword"
+                      },
+                      "'",
+                      " -AsPlainText -Force))) ",
+                      "-Restart\""
+                    ]
                   ]
-              },
-              "setup": {
-
-              },
-              "rename": {
-
-              },
-              "join": {
-                "commands": {
-                    "a-join-domain": {
-                        "command": {
-                            "Fn::Join": [
-                                "",
-                                [
-                                    "powershell.exe -Command \"",
-                                    "Add-Computer -DomainName ",
-                                    {
-                                        "Ref": "DNSNameforDomain1"
-                                    },
-                                    " -Credential ",
-                                    "(New-Object System.Management.Automation.PSCredential('",
-                                    {
-                                        "Ref": "NetBIOSNameforDomain1"
-                                    },
-                                    "\\",
-                                    {
-                                        "Ref": "DomainAdminUserName"
-                                    },
-                                    "',",
-                                    "(ConvertTo-SecureString ",
-                                    "'",
-                                    {
-                                        "Ref": "DomainAdminUserPassword"
-                                    },
-                                    "'",
-                                    " -AsPlainText -Force))) ",
-                                    "-Restart\""
-                                ]
-                            ]
-                        },
-                        "waitAfterCompletion": "forever"
-                    }
-                }
-              },
-              "installRDGW": {
-
-              },
-              "finalize": {
-
+                },
+                "waitAfterCompletion": "forever"
               }
+            }
+          },
+          "installRDGW": {
+            "commands": {
+              "a-install-rds": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "powershell.exe -Command \"Install-WindowsFeature RDS-Gateway,RSAT-RDS-Gateway\""
+                    ]
+                  ]
+                },
+                "waitAfterCompletion": "0"
+              },
+              "b-configure-rdgw": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "powershell.exe -ExecutionPolicy RemoteSigned ",
+                      "C:\\cfn\\scripts\\Initialize-RDGW.ps1 -ServerFQDN $($env:COMPUTERNAME + '.",
+                      {
+                        "Ref": "DNSNameforDomain1"
+                      },
+                      "') -DomainNetBiosName ",
+                      {
+                        "Ref": "NetBIOSNameforDomain1"
+                      },
+                      " -GroupName 'domain admins'"
+                    ]
+                  ]
+                },
+                "waitAfterCompletion": "0"
+              },
+              "c-assign-eip": {
+                "command": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "powershell.exe -ExecutionPolicy RemoteSigned ",
+                      "C:\\cfn\\scripts\\Set-EIP.ps1 -EIPs @('",
+                      {
+                        "Ref": "EIP1"
+                      },
+                      "')"
+                    ]
+                  ]
+                },
+                "waitAfterCompletion": "0"
+              }
+            }
+          },
+          "finalize": {
+            "commands": {
+              "1-signal-success": {
+                "command":
+                  "powershell.exe -Command \"Write-AWSQuickStartStatus\"",
+                "waitAfterCompletion": "0"
+              }
+            }
           }
+        }
       }
     },
     "LabDomain1Exchange": {
