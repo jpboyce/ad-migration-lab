@@ -1,0 +1,1805 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Active Directory Migration Lab Cloud Formation Template. **WARNING** This template creates Amazon EC2 Windows instance and related resources. You will be billed for the AWS resources used if you create a stack from this template."
+Metadata:
+ "AWS::Cloudformation::Interface":
+  ParameterGroups:
+   -
+   Label:
+     default: "Network Configuration"
+    Parameters:
+     -
+   CIDRforLabVPC
+     -
+   PrivateCIDRforDomain1
+     -
+   PublicCIDRforDomain1
+     -
+   PrivateIPforDomain1DC
+     -
+   PrivateCIDRforDomain2
+     -
+   PublicCIDRforDomain2
+     -
+   PrivateIPforDomain2DC
+     -
+   SourceCIDRForRDP
+   -
+   Label:
+     default: "EC2 Configuration"
+    Parameters:
+     -
+   KeyPairName
+     -
+   InstanceTypeforDomainController
+     -
+   InstanceTypeforRemoteDesktopGateway
+     -
+   InstanceTypeforExchange
+     -
+   InstanceTypeforADMT
+     -
+   InstanceTypeforClient
+   -
+   Label:
+     default: "General AD Configuration"
+    Parameters:
+     -
+   DomainAdminUserName
+     -
+   DomainAdminUserPassword
+     -
+   DomainRestoreModePassword
+   -
+   Label:
+     default: "Domain 1 AD Configuration"
+    Parameters:
+     -
+   DNSNameforDomain1
+     -
+   NetBIOSNameforDomain1
+   -
+   Label:
+     default: "Domain 2 AD Configuration"
+    Parameters:
+     -
+   DNSNameforDomain2
+     -
+   NetBIOSNameforDomain2
+  ParameterLabels:
+   DomainAdminUserName:
+    default: "Domain Admin User Name"
+   DomainAdminUserPassword:
+    default: "Domain Admin User Password"
+   DomainRestoreModePassword:
+    default: "Restore Mode Password"
+   KeyPairName:
+    default: "Key Pair Name"
+   CIDRforLabVPC:
+    default: "VPC CIDR"
+   PrivateCIDRforDomain1:
+    default: "Private Subnet CIDR Domain 1"
+   PrivateCIDRforDomain2:
+    default: "Private Subnet CIDR Domain 2"
+   PublicCIDRforDomain1:
+    default: "Public Subnet CIDR Domain 1"
+   PublicCIDRforDomain2:
+    default: "Public Subnet CIDR Domain 2"
+   PrivateIPforDomain1DC:
+    default: "Private IP for Domain 1 DC"
+   PrivateIPforDomain2DC:
+    default: "Private IP for Domain 2 DC"
+   InstanceTypeforDomainController:
+    default: "Domain Controllers Instance Type"
+   InstanceTypeforRemoteDesktopGateway:
+    default: "Remote Desktop Gateway Servers Instance Type"
+   InstanceTypeforExchange:
+    default: "Exchange Server Instance Type"
+   InstanceTypeforADMT:
+    default: "ADMT Instance Type"
+   InstanceTypeforClient:
+    default: "Client Instance Type"
+   DNSNameforDomain1:
+    default: "First Domain FQDN"
+   NetBIOSNameforDomain1:
+    default: "First Domain NetBIOS Name"
+   DNSNameforDomain2:
+    default: "Second Domain FQDN"
+   NetBIOSNameforDomain2:
+    default: "Second Domain NetBIOS Name"
+   SourceCIDRForRDP:
+    default: "The CIDR of the network you will be connecting from"
+Parameters:
+ KeyPairName:
+  Description: "Key pair used to securely connect to your instance after it launches"
+  Type: "AWS::EC2::KeyPair::KeyName"
+ CIDRforLabVPC:
+  Description: "CIDR of the VPC"
+  Type: String
+  Default: "10.0.0.0/16"
+  AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$"
+  ConstraintDescription: "Must be a properly formatted CIDR value"
+ InstanceTypeforDomainController:
+  Description: "EC2 instance type for the Domain Controllers"
+  Type: String
+  Default: "t2.micro"
+  AllowedValues:
+   -
+   "t2.nano"
+   -
+   "t2.micro"
+   -
+   "t2.small"
+   -
+   "t2.medium"
+   -
+   "t2.large"
+ InstanceTypeforRemoteDesktopGateway:
+  Description: "EC2 instance type for the Remote Desktop Gateway Servers"
+  Type: String
+  Default: "t2.large"
+  AllowedValues:
+   -
+   "t2.nano"
+   -
+   "t2.micro"
+   -
+   "t2.small"
+   -
+   "t2.medium"
+   -
+   "t2.large"
+   -
+   "t2.xlarge"
+   -
+   "m4.large"
+   -
+   "m4.xlarge"
+ InstanceTypeforExchange:
+  Description: "EC2 instance type for the Exchange Server"
+  Type: String
+  Default: "t2.large"
+  AllowedValues:
+   -
+   "t2.nano"
+   -
+   "t2.micro"
+   -
+   "t2.small"
+   -
+   "t2.medium"
+   -
+   "t2.large"
+   -
+   "t2.xlarge"
+   -
+   "m4.large"
+   -
+   "m4.xlarge"
+ InstanceTypeforADMT:
+  Description: "EC2 instance type for the ADMT Server"
+  Type: String
+  Default: "t2.medium"
+  AllowedValues:
+   -
+   "t2.nano"
+   -
+   "t2.micro"
+   -
+   "t2.small"
+   -
+   "t2.medium"
+   -
+   "t2.large"
+   -
+   "t2.xlarge"
+   -
+   "m4.large"
+   -
+   "m4.xlarge"
+ InstanceTypeforClient:
+  Description: "EC2 instance type for the Test Client"
+  Type: String
+  Default: "t2.small"
+  AllowedValues:
+   -
+   "t2.nano"
+   -
+   "t2.micro"
+   -
+   "t2.small"
+   -
+   "t2.medium"
+   -
+   "t2.large"
+   -
+   "t2.xlarge"
+   -
+   "m4.large"
+   -
+   "m4.xlarge"
+ SourceCIDRForRDP:
+  Description: "The IP CIDR to grant RDP access to"
+  Type: String
+  MinLength: 9
+  MaxLength: 18
+  AllowedPattern: "^([0-9]+\\.){3}[0-9]+\\/[0-9]+$"
+  ConstraintDescription: "Must be a properly formatted CIDR value"
+ DNSNameforDomain1:
+  Description: "FQDN of the first forest root domain"
+  Type: String
+  Default: "contoso.com"
+  MinLength: 3
+  MaxLength: 25
+  AllowedPattern: "[a-zA-Z0-9]+\\..+"
+  ConstraintDescription: "The DNS Name must be at least three characters and at most 25 characters with alphanumeric characters only"
+ NetBIOSNameforDomain1:
+  Description: "NetBIOS name of the first domain (upto 15 characters)"
+  Type: String
+  Default: CONTOSO
+  MinLength: 1
+  MaxLength: 15
+  AllowedPattern: "[a-zA-Z0-9]+"
+  ConstraintDescription: "The NetBIOS Name must be at least one character and at most 15 characters with alphanumeric characters only"
+ PrivateCIDRforDomain1:
+  Description: "CIDR of the private subnet used by the first domain"
+  Type: String
+  Default: "10.0.11.0/24"
+  AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$"
+  ConstraintDescription: "Must be a properly formatted CIDR value"
+ PrivateIPforDomain1DC:
+  AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+  Default: "10.0.11.10"
+  Description: "Fixed private IP for the first Active Directory server"
+  Type: String
+ NameforDomain1DC:
+  Type: String
+  Default: dc01
+  Description: "Name for the Domain 1 DC"
+ PublicCIDRforDomain1:
+  Description: "CIDR of the private subnet used by the first domain"
+  Type: String
+  Default: "10.0.10.0/24"
+  AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$"
+  ConstraintDescription: "Must be a properly formatted CIDR value"
+ DomainRestoreModePassword:
+  Description: "Password for Restore Mode for both domains. Must be at least 8 characters containing letters, numbers and symbols"
+  Type: String
+  MinLength: 8
+  MaxLength: 32
+  AllowedPattern: "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*"
+  NoEcho: True
+ DomainAdminUserName:
+  Description: "Name for the Domain Admin account"
+  Type: String
+  MinLength: 5
+  MaxLength: 25
+  AllowedPattern: "[a-zA-Z0-9]*"
+  Default: awsdomainadmin
+  ConstraintDescription: "The Domain Admin User Name must be at least three characters and at most 25 characters with alphanumeric characters only"
+ DomainAdminUserPassword:
+  Description: "Password for the Domain Admin account"
+  Type: String
+  MinLength: 8
+  MaxLength: 32
+  AllowedPattern: "(?=^.{6,255}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*"
+  NoEcho: True
+ DNSNameforDomain2:
+  Description: "FQDN of the second forest root domain"
+  Type: String
+  Default: "fabrikam.com"
+  MinLength: 3
+  MaxLength: 25
+  AllowedPattern: "[a-zA-Z0-9]+\\..+"
+  ConstraintDescription: "The DNS Name must be at least three characters and at most 25 characters with alphanumeric characters only"
+ NetBIOSNameforDomain2:
+  Description: "NetBIOS name of the second domain (upto 15 characters)"
+  Type: String
+  Default: FABRIKAM
+  MinLength: 1
+  MaxLength: 15
+  AllowedPattern: "[a-zA-Z0-9]+"
+  ConstraintDescription: "The NetBIOS Name must be at least one character and at most 15 characters with alphanumeric characters only"
+ PrivateCIDRforDomain2:
+  Description: "CIDR of the private subnet used by the second domain"
+  Type: String
+  Default: "10.0.21.0/24"
+  AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$"
+  ConstraintDescription: "Must be a properly formatted CIDR value"
+ PrivateIPforDomain2DC:
+  AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
+  Default: "10.0.21.10"
+  Description: "Fixed private IP for the second Active Directory server"
+  Type: String
+ NameforDomain2DC:
+  Type: String
+  Default: dc02
+  Description: "Name for the Domain 1 DC"
+ PublicCIDRforDomain2:
+  Description: "CIDR of the public subnet used by the second domain"
+  Type: String
+  Default: "10.0.20.0/24"
+  AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(1[6-9]|2[0-8]))$"
+  ConstraintDescription: "Must be a properly formatted CIDR value"
+Rules:
+ SubnetsInVPC:
+  Assertions:
+   -
+   Assert:
+     "Fn::EachMemberIn":
+      -
+   "Fn::ValueOfAll":
+        -
+   "AWS::EC2::Subnet::Id"
+        -
+   VpcId
+      -
+   "Fn::RefAll": "AWS::EC2::VPC::Id"
+    AssertDescription: "All subnets must be in the VPC"
+Mappings:
+ AWSRegion2AMI:
+  "ap-southeast-2":
+   Windows2008sp2: "ami-7d35d31f"
+   Windows2008r2sp1: "ami-29cd2a4b"
+   Windows2012r2: "ami-ed33d48f"
+Resources:
+ LabDHCPOptions:
+  Type: "AWS::EC2::DHCPOptions"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "ADML DHCP Options"
+    -
+   Key: Description
+     Value: "DHCP Options for VPC"
+   DomainName: "ap-southeast-2.compute.internal"
+   DomainNameServers:
+    -
+   AmazonProvidedDNS
+ LabVPC:
+  Type: "AWS::EC2::VPC"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "ADML VPC"
+    -
+   Key: Description
+     Value: "Virtual Private Cloud aka VPC that will contain all the resources"
+   CidrBlock:
+    Ref: CIDRforLabVPC
+   EnableDnsSupport: true
+   EnableDnsHostnames: true
+ LabDefaultNetworkACL:
+  Type: "AWS::EC2::NetworkAcl"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "ADML Default Network Access Control List"
+    -
+   Key: Description
+     Value: "Network Access Control list applied to the VPC"
+   VpcId:
+    Ref: LabVPC
+ NetACLAllowIncomingPingfromInternet:
+  Type: "AWS::EC2::NetworkAclEntry"
+  Properties:
+   NetworkAclId:
+    Ref: LabDefaultNetworkACL
+   RuleNumber: 100
+   Protocol: "-1"
+   RuleAction: Allow
+   Egress: false
+   CidrBlock: "0.0.0.0/0"
+   Icmp:
+    Code: "-1"
+    Type: "-1"
+ NetACLAllowIncomingRDPfromRDPCIDR:
+  Type: "AWS::EC2::NetworkAclEntry"
+  Properties:
+   NetworkAclId:
+    Ref: LabDefaultNetworkACL
+   RuleNumber: 3389
+   Protocol: 6
+   RuleAction: Allow
+   Egress: false
+   CidrBlock: "0.0.0.0/0"
+   PortRange:
+    From: 3389
+    To: 3389
+ AssociateNetACLtoDomain1PublicSubnet:
+  Type: "AWS::EC2::SubnetNetworkAclAssociation"
+  Properties:
+   SubnetId:
+    Ref: LabDomain1PublicSubnet
+   NetworkAclId:
+    Ref: LabDefaultNetworkACL
+ AssociateNetACLtoDomain2PublicSubnet:
+  Type: "AWS::EC2::SubnetNetworkAclAssociation"
+  Properties:
+   SubnetId:
+    Ref: LabDomain2PublicSubnet
+   NetworkAclId:
+    Ref: LabDefaultNetworkACL
+ LabVPCDHCPOptionsAssociation:
+  Type: "AWS::EC2::VPCDHCPOptionsAssociation"
+  Properties:
+   VpcId:
+    Ref: LabVPC
+   DhcpOptionsId:
+    Ref: LabDHCPOptions
+ LabDomain1PublicSubnet:
+  Type: "AWS::EC2::Subnet"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 1 Public Subnet"
+    -
+   Key: Description
+     Value: "Subnet object for the Remote Desktop Gateway Server associated with Domain 1"
+   AvailabilityZone:
+    "Fn::Select":
+     -
+   0
+     -
+   "Fn::GetAZs":
+       Ref: "AWS::Region"
+   VpcId:
+    Ref: LabVPC
+   CidrBlock: "10.0.10.0/24"
+ LabDomain1PrivateSubnet:
+  Type: "AWS::EC2::Subnet"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 1 Private Subnet"
+    -
+   Key: Description
+     Value: "Subnet object for the other servers associated with Domain 1"
+   AvailabilityZone:
+    "Fn::Select":
+     -
+   0
+     -
+   "Fn::GetAZs":
+       Ref: "AWS::Region"
+   VpcId:
+    Ref: LabVPC
+   CidrBlock:
+    Ref: PrivateCIDRforDomain1
+ LabDomain2PublicSubnet:
+  Type: "AWS::EC2::Subnet"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 2 Public Subnet"
+    -
+   Key: Description
+     Value: "Subnet object for the Remote Desktop Gateway Server associated with Domain 2"
+   AvailabilityZone:
+    "Fn::Select":
+     -
+   1
+     -
+   "Fn::GetAZs":
+       Ref: "AWS::Region"
+   VpcId:
+    Ref: LabVPC
+   CidrBlock: "10.0.20.0/24"
+ LabDomain2PrivateSubnet:
+  Type: "AWS::EC2::Subnet"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 2 Private Subnet"
+    -
+   Key: Description
+     Value: "Subnet object for the other Servers associated with Domain 2"
+   AvailabilityZone:
+    "Fn::Select":
+     -
+   1
+     -
+   "Fn::GetAZs":
+       Ref: "AWS::Region"
+   VpcId:
+    Ref: LabVPC
+   CidrBlock:
+    Ref: PrivateCIDRforDomain2
+ LabInternetGateway:
+  Type: "AWS::EC2::InternetGateway"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Internet Gateway"
+    -
+   Key: Description
+     Value: "Allows connection to the internet"
+ AttachInternetGatewaytoVPC:
+  Type: "AWS::EC2::VPCGatewayAttachment"
+  Properties:
+   VpcId:
+    Ref: LabVPC
+   InternetGatewayId:
+    Ref: LabInternetGateway
+ RouteTableforPublicSubnets:
+  Type: "AWS::EC2::RouteTable"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Route table"
+    -
+   Key: Description
+     Value: "Contains routers to be associated with a subnet object"
+   VpcId:
+    Ref: LabVPC
+ RouteforPublicSubnetstoInternet:
+  DependsOn: AttachInternetGatewaytoVPC
+  Type: "AWS::EC2::Route"
+  Properties:
+   DestinationCidrBlock: "0.0.0.0/0"
+   RouteTableId:
+    Ref: RouteTableforPublicSubnets
+   GatewayId:
+    Ref: LabInternetGateway
+ AssociateRouteTabletoDomain1PublicSubnet:
+  Type: "AWS::EC2::SubnetRouteTableAssociation"
+  Properties:
+   SubnetId:
+    Ref: LabDomain1PublicSubnet
+   RouteTableId:
+    Ref: RouteTableforPublicSubnets
+ AssociateRouteTabletoDomain2PublicSubnet:
+  Type: "AWS::EC2::SubnetRouteTableAssociation"
+  Properties:
+   SubnetId:
+    Ref: LabDomain2PublicSubnet
+   RouteTableId:
+    Ref: RouteTableforPublicSubnets
+ SecurityGroupWindows:
+  Type: "AWS::EC2::SecurityGroup"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Windows security group"
+    -
+   Key: Description
+     Value: "Contains standard rules to allow traffic required for Active Directory and associated Windows services"
+   GroupDescription: "Security Group with baseline set of rules for Windows Servers"
+   SecurityGroupIngress:
+    -
+   IpProtocol: tcp
+     FromPort: 53
+     ToPort: 53
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 53
+     ToPort: 53
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 88
+     ToPort: 88
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 88
+     ToPort: 88
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 123
+     ToPort: 123
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 123
+     ToPort: 123
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 135
+     ToPort: 135
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 137
+     ToPort: 137
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 138
+     ToPort: 138
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 139
+     ToPort: 139
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 389
+     ToPort: 389
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 389
+     ToPort: 389
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 445
+     ToPort: 445
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 445
+     ToPort: 445
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 464
+     ToPort: 464
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 464
+     ToPort: 464
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 636
+     ToPort: 636
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 1024
+     ToPort: 5000
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: udp
+     FromPort: 1024
+     ToPort: 5000
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 3268
+     ToPort: 3268
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 3269
+     ToPort: 3269
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 5722
+     ToPort: 5722
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 9389
+     ToPort: 9389
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 49152
+     ToPort: 65535
+     CidrIp:
+      Ref: CIDRforLabVPC
+    -
+   IpProtocol: tcp
+     FromPort: 3389
+     ToPort: 3389
+     CidrIp:
+      Ref: PublicCIDRforDomain1
+    -
+   IpProtocol: tcp
+     FromPort: 3389
+     ToPort: 3389
+     CidrIp:
+      Ref: PublicCIDRforDomain2
+   VpcId:
+    Ref: LabVPC
+ LabDomain1DomainController:
+  Type: "AWS::EC2::Instance"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 1 Domain Controller"
+    -
+   Key: Description
+     Value: "EC2 Instance for the Domain Controller of Domain 1"
+   ImageId:
+    "Fn::FindInMap":
+     -
+   AWSRegion2AMI
+     -
+   Ref: "AWS::Region"
+     -
+   Windows2008r2sp1
+   InstanceType:
+    Ref: InstanceTypeforDomainController
+   PrivateIpAddress:
+    Ref: PrivateIPforDomain1DC
+   SecurityGroupIds:
+    -
+   Ref: SecurityGroupWindows
+   SubnetId:
+    Ref: LabDomain1PrivateSubnet
+   KeyName:
+    Ref: KeyPairName
+   UserData:
+    "Fn::Base64":
+     "Fn::Join":
+      -
+   ""
+      -
+   -
+   "<script>\n"
+       -
+   "cfn-init.exe -v -c config -s "
+       -
+   Ref: "AWS::StackId"
+       -
+   " -r LabDomain1DomainController"
+       -
+   " --region "
+       -
+   Ref: "AWS::Region"
+       -
+   "\n"
+       -
+   "</script>\n"
+  Metadata:
+   "aws::cloudformation::init":
+    configSets:
+     config:
+      -
+   setup
+      -
+   rename
+      -
+   installADDS
+      -
+   configureADSites
+      -
+   finalize
+    setup:
+     files:
+      "c:\\cfn\\cfn-hup.conf":
+       content:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "[main]\n"
+          -
+   "stack="
+          -
+   Ref: "AWS::StackName"
+          -
+   "\n"
+          -
+   "region="
+          -
+   Ref: "AWS::Region"
+          -
+   "\n"
+      "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf":
+       content:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "[cfn-auto-reloader-hook]\n"
+          -
+   "triggers=post.update\n"
+          -
+   "path=Resources.LabDomain1DomainController.Metadata.AWS::CloudFormation::Init\n"
+          -
+   "action=cfn-init.exe -v -c config -s "
+          -
+   Ref: "AWS::StackId"
+          -
+   " -r LabDomain1DomainController"
+          -
+   " --region "
+          -
+   Ref: "AWS::Region"
+          -
+   "\n"
+      "c:\\cfn\\scripts\\Set-StaticIP.ps1":
+       content:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "$netip = Get-NetIPConfiguration;"
+          -
+   "$ipconfig = Get-NetIPAddress | ?{$_.IpAddress -eq $netip.IPv4Address.IpAddress};"
+          -
+   "Get-NetAdapter | Set-NetIPInterface -DHCP Disabled;"
+          -
+   "Get-NetAdapter | New-NetIPAddress -AddressFamily IPv4 -IPAddress $netip.IPv4Address.IpAddress -PrefixLength $ipconfig.PrefixLength -DefaultGateway $netip.IPv4DefaultGateway.NextHop;"
+          -
+   "Get-NetAdapter | Set-DnsClientServerAddress -ServerAddresses $netip.DNSServer.ServerAddresses;"
+          -
+   "\n"
+     services:
+      windows:
+       "cfn-hup":
+        enabled: true
+        ensureRunning: true
+        files:
+         -
+   "c:\\cfn\\cfn-hup.conf"
+         -
+   "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"
+    rename:
+     commands:
+      "a-set-static-ip":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -ExecutionPolicy RemoteSigned -Command c:\\cfn\\scripts\\Set-StaticIP.ps1"
+       waitAfterCompletion: 45
+      "b-execute-powershell-script-RenameComputer":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe Rename-Computer -NewName "
+          -
+   Ref: NameforDomain1DC
+          -
+   " -Restart"
+       waitAfterCompletion: forever
+    installADDS:
+     commands:
+      "1-install-prereqs":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command \"Install-WindowsFeature AD-Domain-Services, rsat-adds -IncludeAllSubFeature\""
+       waitAfterCompletion: 0
+      "2-install-adds":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command "
+          -
+   "\"Install-ADDSForest -DomainName "
+          -
+   Ref: DNSNameforDomain1
+          -
+   " "
+          -
+   "-SafeModeAdministratorPassword (ConvertTo-SecureString "
+          -
+   "'"
+          -
+   Ref: DomainRestoreModePassword
+          -
+   "'"
+          -
+   " -AsPlainText -Force) "
+          -
+   "-DomainMode Win2008 "
+          -
+   "-DomainNetbiosName "
+          -
+   Ref: NetBIOSNameforDomain1
+          -
+   " "
+          -
+   "-ForestMode Win2008 "
+          -
+   "-Confirm:$false "
+          -
+   "-Force\""
+       waitAfterCompletion: forever
+      "3-restart-service":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command Restart-Service NetLogon -EA 0"
+       waitAfterCompletion: 180
+      "4-create-adminuser":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command "
+          -
+   "\"New-ADUser "
+          -
+   "-Name "
+          -
+   Ref: DomainAdminUserName
+          -
+   " "
+          -
+   "-UserPrincipalName "
+          -
+   Ref: DomainAdminUserName
+          -
+   "@"
+          -
+   Ref: DNSNameforDomain1
+          -
+   " "
+          -
+   "-AccountPassword (ConvertTo-SecureString "
+          -
+   "'"
+          -
+   Ref: DomainAdminUserPassword
+          -
+   "'"
+          -
+   " -AsPlainText -Force) "
+          -
+   "-Enabled $true "
+          -
+   "-PasswordNeverExpires $true\""
+       waitAfterCompletion: 0
+      "5-update-adminuser":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -ExecutionPolicy RemoteSigned -Command c:\\cfn\\scripts\\ConvertTo-EnterpriseAdmin.ps1 -Members "
+          -
+   Ref: DomainAdminUserName
+       waitAfterCompletion: 0
+    configureSites:
+     commands:
+      "a-rename-default-site":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe "
+          -
+   "\""
+          -
+   "Get-ADObject -SearchBase (Get-ADRootDSE).ConfigurationNamingContext -filter {Name -eq 'Default-First-Site-Name'} | Rename-ADObject -NewName AZ1"
+          -
+   "\""
+       waitAfterCompletion: 0
+      "b-create-site-2":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe New-ADReplicationSite AZ2"
+       waitAfterCompletion: 0
+      "c-create-publicsubnet-1":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command New-ADReplicationSubnet -Name "
+          -
+   Ref: PublicCIDRforDomain1
+          -
+   " -Site AZ1"
+       waitAfterCompletion: 0
+      "d-create-publicsubnet-2":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command New-ADReplicationSubnet -Name "
+          -
+   Ref: PublicCIDRforDomain2
+          -
+   " -Site AZ2"
+       waitAfterCompletion: 0
+      "e-create-privatesubnet-1":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command New-ADReplicationSubnet -Name "
+          -
+   Ref: PrivateCIDRforDomain1
+          -
+   " -Site AZ1"
+       waitAfterCompletion: 0
+      "f-create-privatesubnet-2":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command New-ADReplicationSubnet -Name "
+          -
+   Ref: PrivateCIDRforDomain2
+          -
+   " -Site AZ2"
+       waitAfterCompletion: 0
+      "g-set-site-link":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command \""
+          -
+   "Get-ADReplicationSiteLink -Filter * | Set-ADReplicationSiteLink -SitesIncluded @{add='AZ2'} -ReplicationFrequencyInMinutes 15\""
+       waitAfterCompletion: 0
+    finalize:
+     commands:
+      "a-signal-success":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "cfn-signal.exe -e 0 \""
+          -
+   Ref: LabDomain1DomainControllerWaitHandle
+          -
+   "\""
+ LabDomain1RemoteDesktopGateway:
+  Type: "AWS::EC2::Instance"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 1 Remote Desktop Gateway"
+    -
+   Key: Description
+     Value: "Remote Desktop Gateway Server for Domain 1 to allow access to resources on the private subnet"
+   ImageId:
+    "Fn::FindInMap":
+     -
+   AWSRegion2AMI
+     -
+   Ref: "AWS::Region"
+     -
+   Windows2008r2sp1
+   InstanceType:
+    Ref: InstanceTypeforRemoteDesktopGateway
+   PrivateIpAddress: "10.0.10.10"
+   SecurityGroupIds:
+    -
+   Ref: SecurityGroupWindows
+   SubnetId:
+    Ref: LabDomain1PublicSubnet
+   KeyName:
+    Ref: KeyPairName
+  Metadata:
+   "aws::cloudformation::init":
+    configSets:
+     config:
+      -
+   setup
+      -
+   rename
+      -
+   join
+      -
+   installRDGW
+      -
+   finalize
+    setup:
+    rename:
+    join:
+     commands:
+      "a-join-domain":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command \""
+          -
+   "Add-Computer -DomainName "
+          -
+   Ref: DNSNameforDomain1
+          -
+   " -Credential "
+          -
+   "(New-Object System.Management.Automation.PSCredential('"
+          -
+   Ref: NetBIOSNameforDomain1
+          -
+   "\\"
+          -
+   Ref: DomainAdminUserName
+          -
+   "',"
+          -
+   "(ConvertTo-SecureString "
+          -
+   "'"
+          -
+   Ref: DomainAdminUserPassword
+          -
+   "'"
+          -
+   " -AsPlainText -Force))) "
+          -
+   "-Restart\""
+       waitAfterCompletion: forever
+    installRDGW:
+     commands:
+      "a-install-rds":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command \"Install-WindowsFeature RDS-Gateway,RSAT-RDS-Gateway\""
+       waitAfterCompletion: 0
+      "b-configure-rdgw":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -ExecutionPolicy RemoteSigned "
+          -
+   "C:\\cfn\\scripts\\Initialize-RDGW.ps1 -ServerFQDN $($env:COMPUTERNAME + '."
+          -
+   Ref: DNSNameforDomain1
+          -
+   "') -DomainNetBiosName "
+          -
+   Ref: NetBIOSNameforDomain1
+          -
+   " -GroupName 'domain admins'"
+       waitAfterCompletion: 0
+      "c-assign-eip":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -ExecutionPolicy RemoteSigned "
+          -
+   "C:\\cfn\\scripts\\Set-EIP.ps1 -EIPs @('"
+          -
+   Ref: EIP1
+          -
+   "')"
+       waitAfterCompletion: 0
+    finalize:
+     commands:
+      "1-signal-success":
+       command: "powershell.exe -Command \"Write-AWSQuickStartStatus\""
+       waitAfterCompletion: 0
+ LabDomain1Exchange:
+  Type: "AWS::EC2::Instance"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 1 Exchange server"
+    -
+   Key: Description
+     Value: "Microsoft Exchange Server on Domain 1"
+   ImageId:
+    "Fn::FindInMap":
+     -
+   AWSRegion2AMI
+     -
+   Ref: "AWS::Region"
+     -
+   Windows2008r2sp1
+   InstanceType:
+    Ref: InstanceTypeforExchange
+   PrivateIpAddress: "10.0.11.11"
+   SecurityGroupIds:
+    -
+   Ref: SecurityGroupWindows
+   SubnetId:
+    Ref: LabDomain1PrivateSubnet
+   KeyName:
+    Ref: KeyPairName
+ LabDomain2DomainController:
+  Type: "AWS::EC2::Instance"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 2 Domain Controller"
+    -
+   Key: Description
+     Value: "Domain controller for Domain 2"
+   ImageId:
+    "Fn::FindInMap":
+     -
+   AWSRegion2AMI
+     -
+   Ref: "AWS::Region"
+     -
+   Windows2008r2sp1
+   InstanceType:
+    Ref: InstanceTypeforDomainController
+   PrivateIpAddress:
+    Ref: PrivateIPforDomain2DC
+   SecurityGroupIds:
+    -
+   Ref: SecurityGroupWindows
+   SubnetId:
+    Ref: LabDomain2PrivateSubnet
+   KeyName:
+    Ref: KeyPairName
+  Metadata:
+   "aws::cloudformation::init":
+    configSets:
+     config:
+      -
+   setup
+      -
+   rename
+      -
+   join
+      -
+   addDomainController
+      -
+   finalize
+    setup:
+     files:
+      "c:\\cfn\\cfn-hup.conf":
+       content:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "[main]\n"
+          -
+   "stack="
+          -
+   Ref: "AWS::StackName"
+          -
+   "\n"
+          -
+   "region="
+          -
+   Ref: "AWS::Region"
+          -
+   "\n"
+      "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf":
+       content:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "[cfn-auto-reloader-hook]\n"
+          -
+   "triggers=post.update\n"
+          -
+   "path=Resources.LabDomain1DomainController.Metadata.AWS::CloudFormation::Init\n"
+          -
+   "action=cfn-init.exe -v -c config -s "
+          -
+   Ref: "AWS::StackId"
+          -
+   " -r LabDomain2DomainController"
+          -
+   " --region "
+          -
+   Ref: "AWS::Region"
+          -
+   "\n"
+      "c:\\cfn\\scripts\\Set-StaticIP.ps1":
+       content:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "$netip = Get-NetIPConfiguration;"
+          -
+   "$ipconfig = Get-NetIPAddress | ?{$_.IpAddress -eq $netip.IPv4Address.IpAddress};"
+          -
+   "Get-NetAdapter | Set-NetIPInterface -DHCP Disabled;"
+          -
+   "Get-NetAdapter | New-NetIPAddress -AddressFamily IPv4 -IPAddress $netip.IPv4Address.IpAddress -PrefixLength $ipconfig.PrefixLength -DefaultGateway $netip.IPv4DefaultGateway.NextHop;"
+          -
+   "Get-NetAdapter | Set-DnsClientServerAddress -ServerAddresses $netip.DNSServer.ServerAddresses;"
+          -
+   "\n"
+     services:
+      windows:
+       "cfn-hup":
+        enabled: true
+        ensureRunning: true
+        files:
+         -
+   "c:\\cfn\\cfn-hup.conf"
+         -
+   "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"
+    rename:
+     commands:
+      "a-set-static-ip":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -ExecutionPolicy RemoteSigned -Command c:\\cfn\\scripts\\Set-StaticIP.ps1"
+       waitAfterCompletion: 45
+      "b-execute-powershell-script-RenameComputer":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe Rename-Computer -NewName "
+          -
+   Ref: NameforDomain2DC
+          -
+   " -Restart"
+       waitAfterCompletion: forever
+    installADDS:
+     commands:
+      "1-install-prereqs":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command \"Install-WindowsFeature AD-Domain-Services, rsat-adds -IncludeAllSubFeature\""
+       waitAfterCompletion: 0
+      "2-install-adds":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command "
+          -
+   "\"Install-ADDSForest -DomainName "
+          -
+   Ref: DNSNameforDomain2
+          -
+   " "
+          -
+   "-SafeModeAdministratorPassword (ConvertTo-SecureString "
+          -
+   "'"
+          -
+   Ref: DomainRestoreModePassword
+          -
+   "'"
+          -
+   " -AsPlainText -Force) "
+          -
+   "-DomainMode Win2012R2 "
+          -
+   "-DomainNetbiosName "
+          -
+   Ref: NetBIOSNameforDomain2
+          -
+   " "
+          -
+   "-ForestMode Win2012R2 "
+          -
+   "-Confirm:$false "
+          -
+   "-Force\""
+       waitAfterCompletion: forever
+      "3-restart-service":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command Restart-Service NetLogon -EA 0"
+       waitAfterCompletion: 180
+      "4-create-adminuser":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command "
+          -
+   "\"New-ADUser "
+          -
+   "-Name "
+          -
+   Ref: DomainAdminUserName
+          -
+   " "
+          -
+   "-UserPrincipalName "
+          -
+   Ref: DomainAdminUserName
+          -
+   "@"
+          -
+   Ref: DNSNameforDomain2
+          -
+   " "
+          -
+   "-AccountPassword (ConvertTo-SecureString "
+          -
+   "'"
+          -
+   Ref: DomainAdminUserPassword
+          -
+   "'"
+          -
+   " -AsPlainText -Force) "
+          -
+   "-Enabled $true "
+          -
+   "-PasswordNeverExpires $true\""
+       waitAfterCompletion: 0
+      "5-update-adminuser":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -ExecutionPolicy RemoteSigned -Command c:\\cfn\\scripts\\ConvertTo-EnterpriseAdmin.ps1 -Members "
+          -
+   Ref: DomainAdminUserName
+       waitAfterCompletion: 0
+    configureSites:
+     commands:
+      "a-rename-default-site":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe "
+          -
+   "\""
+          -
+   "Get-ADObject -SearchBase (Get-ADRootDSE).ConfigurationNamingContext -filter {Name -eq 'Default-First-Site-Name'} | Rename-ADObject -NewName AZ1"
+          -
+   "\""
+       waitAfterCompletion: 0
+      "b-create-site-2":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe New-ADReplicationSite AZ2"
+       waitAfterCompletion: 0
+      "c-create-publicsubnet-1":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command New-ADReplicationSubnet -Name "
+          -
+   Ref: PublicCIDRforDomain1
+          -
+   " -Site AZ1"
+       waitAfterCompletion: 0
+      "d-create-publicsubnet-2":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command New-ADReplicationSubnet -Name "
+          -
+   Ref: PublicCIDRforDomain2
+          -
+   " -Site AZ2"
+       waitAfterCompletion: 0
+      "e-create-privatesubnet-1":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command New-ADReplicationSubnet -Name "
+          -
+   Ref: PrivateCIDRforDomain1
+          -
+   " -Site AZ1"
+       waitAfterCompletion: 0
+      "f-create-privatesubnet-2":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command New-ADReplicationSubnet -Name "
+          -
+   Ref: PrivateCIDRforDomain2
+          -
+   " -Site AZ2"
+       waitAfterCompletion: 0
+      "g-set-site-link":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "powershell.exe -Command \""
+          -
+   "Get-ADReplicationSiteLink -Filter * | Set-ADReplicationSiteLink -SitesIncluded @{add='AZ2'} -ReplicationFrequencyInMinutes 15\""
+       waitAfterCompletion: 0
+    finalize:
+     commands:
+      "a-signal-success":
+       command:
+        "Fn::Join":
+         -
+   ""
+         -
+   -
+   "cfn-signal.exe -e 0 \""
+          -
+   Ref: LabDomain2DomainControllerWaitHandle
+          -
+   "\""
+ LabDomain2RemoteDesktopGateway:
+  Type: "AWS::EC2::Instance"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Domain 2 Remote Desktop Gateway Server"
+    -
+   Key: Description
+     Value: "Allows connection to resources on the private subnet"
+   ImageId:
+    "Fn::FindInMap":
+     -
+   AWSRegion2AMI
+     -
+   Ref: "AWS::Region"
+     -
+   Windows2008r2sp1
+   InstanceType:
+    Ref: InstanceTypeforRemoteDesktopGateway
+   PrivateIpAddress: "10.0.20.10"
+   SecurityGroupIds:
+    -
+   Ref: SecurityGroupWindows
+   SubnetId:
+    Ref: LabDomain2PublicSubnet
+   KeyName:
+    Ref: KeyPairName
+ LabDomain2ADMT:
+  Type: "AWS::EC2::Instance"
+  Properties:
+   Tags:
+    -
+   Key: "Stack ID"
+     Value:
+      Ref: "AWS::StackId"
+    -
+   Key: Application
+     Value: "Active Directory Migration Lab"
+    -
+   Key: Name
+     Value: "Active Directory Migration Tool Server"
+    -
+   Key: Description
+     Value: "Server for installing and running ADMT"
+   ImageId:
+    "Fn::FindInMap":
+     -
+   AWSRegion2AMI
+     -
+   Ref: "AWS::Region"
+     -
+   Windows2008r2sp1
+   InstanceType:
+    Ref: InstanceTypeforADMT
+   PrivateIpAddress: "10.0.21.11"
+   SecurityGroupIds:
+    -
+   Ref: SecurityGroupWindows
+   SubnetId:
+    Ref: LabDomain2PrivateSubnet
+   KeyName:
+    Ref: KeyPairName
+ LabDomain1DomainControllerWaitHandle:
+  Type: "AWS::CloudFormation::WaitConditionHandle"
+ LabDomain2DomainControllerWaitHandle:
+  Type: "AWS::CloudFormation::WaitConditionHandle"
+Outputs:
+ VpcID:
+  Description: "ID of the VPC"
+  Value:
+   Ref: LabVPC
