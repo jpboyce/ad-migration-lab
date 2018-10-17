@@ -49,3 +49,41 @@ variable "instance_type_client" {
   description = "Allowed instance types for Test Clients"
   default = ["t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "m4.large", "m4.xlarge"]
 }
+
+# Domain 1 Details
+variable "domain1_dnsname" {
+  description = "FQDN of the first forest root domain"
+  default = "contoso.com"
+}
+variable "domain1_netbiosname" {
+  description = "NetBIOS name of the first domain (upto 15 characters)"
+  default = "CONTOSO"
+}
+variable "domain1_cidr_private" {
+  description = "CIDR of the private subnet used by the first domain"
+  default = "10.0.11.0/24"
+}
+variable "domain1_ip_private_dc" {
+  description = "Fixed private IP for the first Active Directory server"
+  default = "10.0.11.10"
+}
+variable "domain1_name_dc" {
+  description = "Name for the Domain 1 DC"
+  default = "dc01"
+}
+variable "domain1_cidr_public" {
+  description = "CIDR of the private subnet used by the first domain"
+  default = "10.0.10.0/24"
+}
+variable "domain1_restoremodepassword" {
+  description = "Password for Restore Mode for both domains. Must be at least 8 characters containing letters, numbers and symbols"
+  default = "CHANGEME"
+}
+variable "domain1_admin_user" {
+  description = "Name for the Domain Admin account"
+  default = "awsdomainadmin"
+}
+variable "domain1_admin_pass" {
+  description = "Password for the Domain Admin account"
+  default = "CHANGEME"
+}
