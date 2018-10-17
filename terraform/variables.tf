@@ -87,3 +87,41 @@ variable "domain1_admin_pass" {
   description = "Password for the Domain Admin account"
   default = "CHANGEME"
 }
+
+# Domain 2 Details
+variable "domain2_dnsname" {
+  description = "FQDN of the second forest root domain"
+  default = "fabrikam.com"
+}
+variable "domain2_netbiosname" {
+  description = "NetBIOS name of the second domain (upto 15 characters)"
+  default = "FABRIKAM"
+}
+variable "domain2_cidr_private" {
+  description = "CIDR of the private subnet used by the second domain"
+  default = "10.0.21.0/24"
+}
+variable "domain2_ip_private_dc" {
+  description = "Fixed private IP for the second Active Directory server"
+  default = "10.0.21.10"
+}
+variable "domain2_name_dc" {
+  description = "Name for the Domain 1 DC"
+  default = "dc02"
+}
+variable "domain2_cidr_public" {
+  description = "CIDR of the private subnet used by the second domain"
+  default = "10.0.20.0/24"
+}
+variable "domain2_restoremodepassword" {
+  description = "Password for Restore Mode for both domains. Must be at least 8 characters containing letters, numbers and symbols"
+  default = "CHANGEME"
+}
+variable "domain2_admin_user" {
+  description = "Name for the Domain Admin account"
+  default = "awsdomainadmin"
+}
+variable "domain2_admin_pass" {
+  description = "Password for the Domain Admin account"
+  default = "CHANGEME"
+}
