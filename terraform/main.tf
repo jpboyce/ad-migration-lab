@@ -89,3 +89,194 @@ resource "aws_route_table" "publicsubnets" {
     gateway_id = "${aws_internet_gateway.adlabgw.id}"
   }
 }
+
+
+# Security Groups
+resource "aws_security_group" "adlab_securitygroup_ad" {
+  name = "adlab_securitygroup_ad"
+  description = "Security Rules for AD to work, applied to the VPC CIDR"
+  vpc_id = "${aws_vpc.adlab.id}"
+
+  ingress {
+    protocol = "tcp"
+    from_port = 53
+    to_port = 53
+    description = "DNS/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 53
+    to_port = 53
+    description = "DNS/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 88
+    to_port = 88
+    description = "Kerberos/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 88
+    to_port = 88
+    description = "Kerberos/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 123
+    to_port = 123
+    description = "Time/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 123
+    to_port = 123
+    description = "Time/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 135
+    to_port = 135
+    description = "NETBIOS/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 137
+    to_port = 137
+    description = "NETBIOS/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 138
+    to_port = 138
+    description = "NETBIOS/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 139
+    to_port = 139
+    description = "NETBIOS/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 389
+    to_port = 389
+    description = "LDAP/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 389
+    to_port = 389
+    description = "LDAP/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 445
+    to_port = 445
+    description = "SMB/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 445
+    to_port = 445
+    description = "SMB/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 464
+    to_port = 464
+    description = "Kerberos/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 464
+    to_port = 464
+    description = "Kerberos/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 636
+    to_port = 636
+    description = "LDAPS/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 1024
+    to_port = 5000
+    description = "Dynamic Ports/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "udp"
+    from_port = 1024
+    to_port = 5000
+    description = "Dynamic Ports/UDP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 3268
+    to_port = 3268
+    description = "Global Catalog/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 3269
+    to_port = 3269
+    description = "Global Catalog/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 5722
+    to_port = 5722
+    description = "DFS-R/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 9389
+    to_port = 9389
+    description = "AD Web Services/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+  ingress {
+    protocol = "tcp"
+    from_port = 49152
+    to_port = 65535
+    description = "Dynamic Ports/TCP"
+    cidr_blocks = ["${var.cidr_block_default}"]
+  }
+}
+
+resource "aws_security_group" "adlab_securitygroup_rdp" {
+  name = "adlab_securitygroup_rdp"
+  description = "Security Rules for RDP to work, applied to the Public CIDRs only"
+  vpc_id = "${aws_vpc.adlab.id}"
+
+    ingress {
+    protocol = "tcp"
+    from_port = 3389
+    to_port = 3389
+    description = "RDP/TCP"
+    cidr_blocks = ["${var.domain1_cidr_public}","${var.domain2_cidr_public}"]
+  }
+}
