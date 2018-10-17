@@ -34,14 +34,13 @@ resource "aws_default_network_acl" "default" {
 }
 
 
-# Create internet gateway
-resource "aws_internet_gateway" "default" {
+# Create internet gateway and associate with the VPC
+resource "aws_internet_gateway" "adlabgw" {
   vpc_id = "${aws_vpc.adlab.id}"
 }
 
 
 # Subnets
-
 # Domain1 Public Subnet
 resource "aws_subnet" "domain1_subnet_public" {
   vpc_id = "${aws_vpc.adlab.id}"
@@ -78,9 +77,15 @@ resource "aws_subnet" "domain2_subnet_private" {
 
 
 
-# Create a subnet
-resource "aws_subnet" "default_subnet" {
+# Route Tables for the Public Subnets to get to the internet
+resource "aws_route_table" "publicsubnets" {
   vpc_id = "${aws_vpc.adlab.id}"
-  cidr_block = "10.0.1.0/24"
-  map_public_ip_on_launch = true
+  route {
+    cidr_block = "${var.domain1_cidr_public}"
+    gateway_id = "${aws_internet_gateway.adlabgw.id}"
+  }
+  route {
+    cidr_block = "${var.domain2_cidr_public}"
+    gateway_id = "${aws_internet_gateway.adlabgw.id}"
+  }
 }
