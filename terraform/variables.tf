@@ -14,9 +14,9 @@ variable "aws_amis" {
   type = "map"
   description = "AWS AMI Mappings for OSes"
   default = {
-    "windows2008sp2" = "ami-7d35d31f"
-    "windows2008r2sp1" = "ami-29cd2a4b"
-    "windows2012r2" = "ami-ed33d48f"
+    "windows2008sp2" = "ami-0deae87ca2e19f086"
+    "windows2008r2sp1" = "ami-0d725250b69cae269"
+    "windows2012r2" = "ami-02e27664434db6def"
   }
 }
 
