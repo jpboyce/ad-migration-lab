@@ -22,3 +22,30 @@ variable "aws_amis" {
     "windows2012r2" = "ami-ed33d48f"
   }
 }
+
+# Instance Types
+variable "instance_type_dc" {
+  type = "list"
+  description = "Allowed instance types for Domain Controllers"
+  default = ["t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large"]
+}
+variable "instance_type_rdgw" {
+  type = "list"
+  description = "Allowed instance types for Remote Desktop Gateways"
+  default = ["t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "m4.large", "m4.xlarge"]
+}
+variable "instance_type_xch" {
+  type = "list"
+  description = "Allowed instance types for Exchange"
+  default = ["t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "m4.large", "m4.xlarge"]
+}
+variable "instance_type_admt" {
+  type = "list"
+  description = "Allowed instance types for the ADMT Server"
+  default = ["t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "m4.large", "m4.xlarge"]
+}
+variable "instance_type_client" {
+  type = "list"
+  description = "Allowed instance types for Test Clients"
+  default = ["t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "m4.large", "m4.xlarge"]
+}
