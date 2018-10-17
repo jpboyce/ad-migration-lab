@@ -1,6 +1,9 @@
 # Set provider to AWS and specify region
 provider "aws" {
   region = "${var.aws_region}"
+  version = "~> 1.40.0"
+  access_key = "${var.aws_access_key}"
+  secret_key = "${var.aws_secret_key}"
 }
 
 # Create a VPC
@@ -8,12 +11,15 @@ resource "aws_vpc" "adlab" {
   cidr_block = "${var.cidr_block_default}"
   enable_dns_support = true
   enable_dns_hostnames = true
+  tags {
+    Name = "adlabvpc"
+    ResourceGroup = "${var.tag_text_default}"
+  }
 }
 
 # Create the default network ACL, allow ping from the internet and incoming RDP
 resource "aws_default_network_acl" "default" {
   default_network_acl_id = "${aws_vpc.adlab.default_network_acl_id}"
-
   ingress {
     protocol = -1
     rule_no = 100
@@ -21,8 +27,9 @@ resource "aws_default_network_acl" "default" {
     cidr_block = "0.0.0.0/0"
     icmp_code = "-1"
     icmp_type = "-1"
+    from_port = 0
+    to_port = 0
   }
-
   ingress {
     protocol = 6
     rule_no = 3389
@@ -31,12 +38,18 @@ resource "aws_default_network_acl" "default" {
     from_port = 3389
     to_port = 3389
   }
+  tags {
+    ResourceGroup = "${var.tag_text_default}"
+  }
 }
 
 
 # Create internet gateway and associate with the VPC
 resource "aws_internet_gateway" "adlabgw" {
   vpc_id = "${aws_vpc.adlab.id}"
+  tags {
+    ResourceGroup = "${var.tag_text_default}"
+  }
 }
 
 
@@ -75,19 +88,18 @@ resource "aws_subnet" "domain2_subnet_private" {
   }
 }
 
-
-
 # Route Tables for the Public Subnets to get to the internet
 resource "aws_route_table" "publicsubnets" {
   vpc_id = "${aws_vpc.adlab.id}"
-  route {
-    cidr_block = "${var.domain1_cidr_public}"
-    gateway_id = "${aws_internet_gateway.adlabgw.id}"
+  tags {
+    ResourceGroup = "${var.tag_text_default}"
   }
-  route {
-    cidr_block = "${var.domain2_cidr_public}"
-    gateway_id = "${aws_internet_gateway.adlabgw.id}"
-  }
+}
+
+resource "aws_route" "publictointernet" {
+  route_table_id = "${aws_route_table.publicsubnets.id}"
+  gateway_id = "${aws_internet_gateway.adlabgw.id}"
+  destination_cidr_block = "0.0.0.0/0"
 }
 
 
