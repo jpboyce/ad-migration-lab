@@ -2,17 +2,14 @@ variable "tag_text_default" {
   description = "Text to be used in tags applied to AWS resources"
   default = "ADLAB"
 }
-
 variable "aws_region" {
   description = "AWS Region to create items into"
   default = "us-west-2"
 }
-
 variable "cidr_block_default" {
   description = "Default CIDR block value"
   default = "10.0.0.0/16"
 }
-
 variable "aws_amis" {
   type = "map"
   description = "AWS AMI Mappings for OSes"
@@ -22,6 +19,14 @@ variable "aws_amis" {
     "windows2012r2" = "ami-ed33d48f"
   }
 }
+
+variable "aws_access_key" {
+
+}
+variable "aws_secret_key" {
+
+}
+
 
 # Instance Types
 variable "instance_type_dc" {
