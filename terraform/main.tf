@@ -292,3 +292,19 @@ resource "aws_security_group" "adlab_securitygroup_rdp" {
     cidr_blocks = ["${var.domain1_cidr_public}","${var.domain2_cidr_public}"]
   }
 }
+
+
+# EC2 instances
+
+# Domain 1 - DC
+resource "aws_instance" "domain1dc" {
+  instance_type = "${var.instance_type_dc[0]}"
+  ami = "${lookup(var.aws_amis, "windows2008sp2")}"
+  private_ip = "${var.domain1_ip_private_dc}"
+  security_groups = ["${aws_security_group.adlab_securitygroup_ad.id}"]
+  subnet_id = "${aws_subnet.domain1_subnet_private.id}"
+  tags {
+    Name = "${var.domain1_name_dc}.${var.domain1_dnsname}"
+    ResourceGroup = "${var.tag_text_default}"
+  }
+}
