@@ -39,34 +39,37 @@ resource "aws_default_network_acl" "default" {
     to_port = 3389
   }
   tags {
+    Name = "ADLAB Default Network ACL"
     ResourceGroup = "${var.tag_text_default}"
   }
 }
-
 
 # Create internet gateway and associate with the VPC
 resource "aws_internet_gateway" "adlabgw" {
   vpc_id = "${aws_vpc.adlab.id}"
   tags {
+    Name = "ADLAB Internet Gateeway"
     ResourceGroup = "${var.tag_text_default}"
   }
 }
 
-
-# Subnets
+### Subnets ###
 # Domain1 Public Subnet
 resource "aws_subnet" "domain1_subnet_public" {
   vpc_id = "${aws_vpc.adlab.id}"
   cidr_block = "${var.domain1_cidr_public}"
   tags {
+    Name = "Domain1 Public Subnet"
     ResourceGroup = "${var.tag_text_default}"
   }
 }
+
 # Domain1 Private Subnet
 resource "aws_subnet" "domain1_subnet_private" {
   vpc_id = "${aws_vpc.adlab.id}"
   cidr_block = "${var.domain1_cidr_private}"
   tags {
+    Name = "Domain1 Private Subnet"
     ResourceGroup = "${var.tag_text_default}"
   }
 }
@@ -76,14 +79,17 @@ resource "aws_subnet" "domain2_subnet_public" {
   vpc_id = "${aws_vpc.adlab.id}"
   cidr_block = "${var.domain2_cidr_public}"
   tags {
+    Name = "Domain2 Public Subnet"
     ResourceGroup = "${var.tag_text_default}"
   }
 }
+
 # Domain2 Private Subnet
 resource "aws_subnet" "domain2_subnet_private" {
   vpc_id = "${aws_vpc.adlab.id}"
   cidr_block = "${var.domain2_cidr_private}"
   tags {
+    Name = "Domain2 Private Subnet"
     ResourceGroup = "${var.tag_text_default}"
   }
 }
@@ -92,10 +98,12 @@ resource "aws_subnet" "domain2_subnet_private" {
 resource "aws_route_table" "publicsubnets" {
   vpc_id = "${aws_vpc.adlab.id}"
   tags {
+    Name = "ADLAB Route Table"
     ResourceGroup = "${var.tag_text_default}"
   }
 }
 
+# Route
 resource "aws_route" "publictointernet" {
   route_table_id = "${aws_route_table.publicsubnets.id}"
   gateway_id = "${aws_internet_gateway.adlabgw.id}"
@@ -103,12 +111,16 @@ resource "aws_route" "publictointernet" {
 }
 
 
-# Security Groups
+### Security Groups
+# Security Group - AD rules
 resource "aws_security_group" "adlab_securitygroup_ad" {
   name = "adlab_securitygroup_ad"
   description = "Security Rules for AD to work, applied to the VPC CIDR"
   vpc_id = "${aws_vpc.adlab.id}"
-
+  tags {
+    Name = "ADLAB AD Security Group"
+    ResourceGroup = "${var.tag_text_default}"
+  }
   ingress {
     protocol = "tcp"
     from_port = 53
@@ -279,10 +291,15 @@ resource "aws_security_group" "adlab_securitygroup_ad" {
   }
 }
 
+# Security Group - RDP Rule
 resource "aws_security_group" "adlab_securitygroup_rdp" {
   name = "adlab_securitygroup_rdp"
   description = "Security Rules for RDP to work, applied to the Public CIDRs only"
   vpc_id = "${aws_vpc.adlab.id}"
+  tags {
+    Name = "ADLAB RDP Security Group"
+    ResourceGroup = "${var.tag_text_default}"
+  }
 
     ingress {
     protocol = "tcp"
@@ -293,11 +310,10 @@ resource "aws_security_group" "adlab_securitygroup_rdp" {
   }
 }
 
-
-# EC2 instances
-
-# Domain 1 - DC
+### EC2 instances
+# Domain 1 - Domain Controller
 resource "aws_instance" "domain1dc" {
+  count = "${var.deploy_domain1_dc ? 1 : 0}"
   instance_type = "${var.instance_type_dc[0]}"
   ami = "${lookup(var.aws_amis, "windows2008sp2")}"
   private_ip = "${var.domain1_ip_private_dc}"
@@ -305,6 +321,76 @@ resource "aws_instance" "domain1dc" {
   subnet_id = "${aws_subnet.domain1_subnet_private.id}"
   tags {
     Name = "${var.domain1_name_dc}.${var.domain1_dnsname}"
+    ResourceGroup = "${var.tag_text_default}"
+  }
+}
+
+# Domain 1 - Remote Desktop Gateway
+resource "aws_instance" "domain1rdgw" {
+  count = "${var.deploy_domain1_rdgw ? 1 : 0}"
+  instance_type = "${var.instance_type_rdgw[0]}"
+  ami = "${lookup(var.aws_amis, "windows2008sp2")}"
+  private_ip = "${var.domain1_ip_private_rdgw}"
+  security_groups = ["${aws_security_group.adlab_securitygroup_ad.id}"]
+  subnet_id = "${aws_subnet.domain1_subnet_public.id}"
+  tags {
+    Name = "${var.domain1_name_rdgw}.${var.domain1_dnsname}"
+    ResourceGroup = "${var.tag_text_default}"
+  }
+}
+
+# Domain 1 - XCH
+resource "aws_instance" "domain1xch" {
+  count = "${var.deploy_domain1_xch ? 1 : 0}"
+  instance_type = "${var.instance_type_xch[0]}"
+  ami = "${lookup(var.aws_amis, "windows2008sp2")}"
+  private_ip = "${var.domain1_ip_private_xch}"
+  security_groups = ["${aws_security_group.adlab_securitygroup_ad.id}"]
+  subnet_id = "${aws_subnet.domain1_subnet_private.id}"
+  tags {
+    Name = "${var.domain1_name_xch}.${var.domain1_dnsname}"
+    ResourceGroup = "${var.tag_text_default}"
+  }
+}
+
+# Domain 2 - DC
+resource "aws_instance" "domain2dc" {
+  count = "${var.deploy_domain2_dc ? 1 : 0}"
+  instance_type = "${var.instance_type_dc[0]}"
+  ami = "${lookup(var.aws_amis, "windows2008r2sp1")}"
+  private_ip = "${var.domain2_ip_private_dc}"
+  security_groups = ["${aws_security_group.adlab_securitygroup_ad.id}"]
+  subnet_id = "${aws_subnet.domain2_subnet_private.id}"
+  tags {
+    Name = "${var.domain2_name_dc}.${var.domain2_dnsname}"
+    ResourceGroup = "${var.tag_text_default}"
+  }
+}
+
+# Domain 2 - Remote Desktop Gateway
+resource "aws_instance" "domain2rdgw" {
+  count = "${var.deploy_domain2_rdgw ? 1 : 0}"
+  instance_type = "${var.instance_type_rdgw[0]}"
+  ami = "${lookup(var.aws_amis, "windows2008r2sp1")}"
+  private_ip = "${var.domain2_ip_private_rdgw}"
+  security_groups = ["${aws_security_group.adlab_securitygroup_ad.id}"]
+  subnet_id = "${aws_subnet.domain2_subnet_public.id}"
+  tags {
+    Name = "${var.domain2_name_rdgw}.${var.domain2_dnsname}"
+    ResourceGroup = "${var.tag_text_default}"
+  }
+}
+
+# Domain 2 - ADMT
+resource "aws_instance" "domain2admt" {
+  count = "${var.deploy_domain2_admt ? 1 : 0}"
+  instance_type = "${var.instance_type_admt[0]}"
+  ami = "${lookup(var.aws_amis, "windows2008r2sp1")}"
+  private_ip = "${var.domain2_ip_private_admt}"
+  security_groups = ["${aws_security_group.adlab_securitygroup_ad.id}"]
+  subnet_id = "${aws_subnet.domain2_subnet_private.id}"
+  tags {
+    Name = "${var.domain2_name_admt}.${var.domain2_dnsname}"
     ResourceGroup = "${var.tag_text_default}"
   }
 }
