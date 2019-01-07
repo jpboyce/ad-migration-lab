@@ -1,1 +1,5 @@
 terraform/awsaccess.tfvars
+terraform/terraform.tfstate
+terraform/graph.svg
+terraform/terraform.tfstate.backup
+terraform/.terraform/*
